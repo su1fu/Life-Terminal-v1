@@ -2,92 +2,86 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>TERMINAL | 紫微智算核心</title>
+    <title>TERMINAL | 生命終端智算</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;900&display=swap');
         :root { --gold: #d4af37; --bg: #050505; --text: #e0e0e0; }
-        body { background: var(--bg); color: var(--text); font-family: 'Noto Serif SC', serif; margin: 0; display: flex; justify-content: center; overflow-x: hidden; }
-        .terminal { width: 95%; max-width: 1000px; padding: 40px 0; }
+        body { background: var(--bg); color: var(--text); font-family: 'Noto Serif SC', serif; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
         
-        /* 高级感头部 */
-        header { border-bottom: 1px solid var(--gold); padding-bottom: 20px; margin-bottom: 40px; text-align: center; }
-        header h1 { letter-spacing: 15px; color: var(--gold); font-size: 32px; margin: 0; }
-        .bazi-info { font-size: 14px; color: var(--gold); margin-top: 15px; opacity: 0.8; }
+        /* 头部：展示八字信息 */
+        header { border-bottom: 1px solid var(--gold); padding-bottom: 20px; text-align: center; margin-bottom: 30px; }
+        header h1 { letter-spacing: 12px; color: var(--gold); text-transform: uppercase; }
+        .bazi-tag { font-size: 14px; color: var(--gold); opacity: 0.8; margin-top: 10px; }
 
-        /* 动态星盘 Grid */
-        .ziwei-chart { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; aspect-ratio: 1/1; margin-bottom: 40px; }
-        .palace { border: 0.5px solid rgba(212,175,55,0.3); background: rgba(255,255,255,0.02); padding: 15px; position: relative; min-height: 120px; }
+        /* 专业星盘区 */
+        .chart { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
+        .palace { border: 0.5px solid rgba(212, 175, 55, 0.3); background: rgba(255, 255, 255, 0.02); padding: 20px; position: relative; min-height: 100px; }
         .palace-name { position: absolute; bottom: 8px; right: 8px; font-size: 12px; color: var(--gold); }
-        .star-box { writing-mode: vertical-rl; font-size: 18px; letter-spacing: 5px; }
-        .star-main { color: var(--gold); font-weight: 900; }
-        .star-ji { color: #ff4444; border: 1px solid #ff4444; font-size: 12px; margin-top: 5px; padding: 2px; }
+        .star-main { font-size: 20px; font-weight: 900; color: var(--gold); writing-mode: vertical-rl; }
+        .star-alert { color: #ff4444; border: 1px solid #ff4444; font-size: 10px; margin-right: 5px; padding: 2px; }
 
-        /* 解析区 */
-        .analysis { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-        .card { border-left: 3px solid var(--gold); background: rgba(212,175,55,0.05); padding: 25px; }
-        .card h3 { color: var(--gold); margin-top: 0; font-weight: 900; }
+        /* 解析内容 */
+        .analysis { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { border-left: 3px solid var(--gold); background: rgba(212, 175, 55, 0.05); padding: 20px; }
+        .card h3 { color: var(--gold); margin-top: 0; }
         
-        .loading { position: fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index:100; display:flex; align-items:center; justify-content:center; letter-spacing:5px; color:var(--gold); }
+        #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index:100; display:flex; align-items:center; justify-content:center; color:var(--gold); letter-spacing:5px; }
     </style>
 </head>
 <body>
-    <div id="loader" class="loading">CONNECTING TO CORE ENGINE...</div>
-    <div class="terminal">
+    <div id="loader">SYNCHRONIZING CORE DATA...</div>
+    <div class="container">
         <header>
             <h1>生命終端 · 智算</h1>
-            <div id="bazi-display" class="bazi-info">正在同步八字命盘...</div>
+            <div id="bazi-info" class="bazi-tag">正在同步生命原型...</div>
         </header>
 
-        <div class="ziwei-chart" id="chart-grid">
-            </div>
+        <div class="chart" id="star-chart"></div>
 
         <div class="analysis">
             <div class="card">
-                <h3>2026 丙午审计</h3>
-                <p id="liunian-text"></p>
+                <h3>流年审计 (2026)</h3>
+                <p id="liunian-text">等待数据注入...</p>
             </div>
             <div class="card">
-                <h3>大运周期核算</h3>
-                <p id="dayun-text"></p>
+                <h3>周期趋势报告</h3>
+                <p id="dayun-text">正在从内核调取...</p>
             </div>
         </div>
     </div>
 
     <script>
-        async function sync() {
+        async function init() {
             try {
-                // 解决 404 的关键：直接读取同目录下的 data.json
-                const res = await fetch('data.json'); 
+                // 解决 404 的关键：增加版本号防止缓存，并尝试当前目录
+                const res = await fetch(`data.json?v=${new Date().getTime()}`);
+                if (!res.ok) throw new Error("404");
                 const data = await res.json();
                 
-                document.getElementById('bazi-display').innerText = `【八字原型】${data.user_info.bazi} | 命格：${data.user_info.element}`;
+                // 填充八字与解析
+                document.getElementById('bazi-info').innerText = `【八字命局】${data.user_info.bazi} | 纳音：${data.user_info.element}`;
                 document.getElementById('liunian-text').innerHTML = data.liunian_analysis;
                 document.getElementById('dayun-text').innerHTML = data.dayun_analysis;
                 
-                renderChart(data.palace_data);
+                // 动态生成宫位
+                const chart = document.getElementById('star-chart');
+                data.palace_data.forEach(p => {
+                    const box = document.createElement('div');
+                    box.className = 'palace';
+                    box.innerHTML = `
+                        <div class="star-main">${p.stars[0]}${p.stars[1] ? `<span class="star-alert">${p.stars[1]}</span>` : ''}</div>
+                        <div class="palace-name">${p.name} (${p.location})</div>
+                    `;
+                    chart.appendChild(box);
+                });
+
                 document.getElementById('loader').style.display = 'none';
             } catch (e) {
-                document.getElementById('loader').innerText = "链路故障：请先运行 Actions 同步数据";
+                document.getElementById('loader').innerText = ">> 链路未接通：请确保 Actions 已生成数据文件";
             }
         }
-
-        function renderChart(palaces) {
-            const grid = document.getElementById('chart-grid');
-            // 这里可以写更复杂的 12 宫位映射逻辑
-            palaces.forEach(p => {
-                const div = document.createElement('div');
-                div.className = 'palace';
-                div.innerHTML = `
-                    <div class="star-box">
-                        <span class="star-main">${p.stars[0]}</span>
-                        ${p.stars[1] ? `<span class="star-ji">${p.stars[1]}</span>` : ''}
-                    </div>
-                    <span class="palace-name">${p.name}</span>
-                `;
-                grid.appendChild(div);
-            });
-        }
-        window.onload = sync;
+        window.onload = init;
     </script>
 </body>
 </html>
