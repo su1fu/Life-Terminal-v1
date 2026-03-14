@@ -2,197 +2,219 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>TERMINAL 15.0 | 紫微斗數智算核</title>
+    <title>专业紫微斗数排盘终端 - 简体版</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;900&family=Zhi+Mang+Xing&family=JetBrains+Mono:wght@100&display=swap');
-
         :root {
-            --gold: #c6a35f; --gold-br: #ffcc66; --bg: #030303;
-            --border: #1a1a1a; --ji: #d00000; --lu: #008037; --panel: rgba(15,15,15,0.95);
+            --gold: #d4b170; --gold-dark: #8e7341; --bg: #0a0a0a;
+            --palace-bg: #111; --border: #2a2a2a; --text: #cccccc;
         }
 
-        body { background: var(--bg); color: #888; font-family: 'Noto Serif SC', serif; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; }
+        body { background: var(--bg); color: var(--text); font-family: "Microsoft YaHei", sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; }
 
-        /* 顶部高级控制区 */
-        .top-nav {
-            width: 100%; padding: 25px; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
-            border-bottom: 1px solid #222; display: flex; justify-content: center; gap: 15px; z-index: 100;
+        /* 顶部完整交互区 */
+        .top-bar {
+            width: 100%; padding: 20px; background: #000; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: center; gap: 10px; align-items: center;
         }
-        .top-nav select, .top-nav button {
-            background: #000; border: 1px solid #333; color: var(--gold); padding: 8px 18px; 
-            font-size: 13px; cursor: pointer; border-radius: 2px; transition: 0.4s;
+        select, button {
+            background: #151515; border: 1px solid var(--gold-dark); color: var(--gold);
+            padding: 6px 12px; font-size: 14px; cursor: pointer; outline: none;
         }
-        .top-nav button { background: var(--gold); color: #000; font-weight: 900; border: none; letter-spacing: 2px; }
-        .top-nav button:hover { box-shadow: 0 0 25px rgba(198,163,95,0.4); transform: translateY(-1px); }
+        button { background: var(--gold-dark); color: #000; font-weight: bold; padding: 6px 20px; transition: 0.3s; }
+        button:hover { background: var(--gold); box-shadow: 0 0 15px var(--gold-dark); }
 
-        /* 主体布局 */
-        .engine-room { display: grid; grid-template-columns: 880px 420px; gap: 40px; padding: 40px; max-width: 1400px; }
+        .layout-container { display: grid; grid-template-columns: 860px 380px; gap: 30px; padding: 30px; }
 
-        /* 命盘核心阵列 */
-        .chart-matrix {
-            display: grid; grid-template-columns: repeat(4, 220px); grid-template-rows: repeat(4, 220px);
-            gap: 2px; background: #111; border: 1px solid #222; position: relative;
-            perspective: 1000px;
+        /* 命盘区域 */
+        .chart-grid {
+            display: grid; grid-template-columns: repeat(4, 215px); grid-template-rows: repeat(4, 215px);
+            gap: 1px; background: var(--border); border: 1px solid var(--border);
         }
 
         .palace {
-            background: var(--bg); position: relative; padding: 15px; display: flex; flex-direction: column;
-            border: 0.5px solid #111; transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1); opacity: 0; transform: translateZ(-100px);
+            background: var(--palace-bg); position: relative; padding: 12px; box-sizing: border-box;
+            transition: 0.5s; opacity: 0.4; /* 初始预加载状态 */
         }
-        .palace.active { opacity: 1; transform: translateZ(0); }
-        .palace:hover { background: #080808; z-index: 10; box-shadow: inset 0 0 20px rgba(198,163,95,0.05); }
+        .palace.active { opacity: 1; }
 
-        /* 宫位像素级细节 */
-        .p-dx-gan { position: absolute; top: 10px; left: 10px; font-weight: 900; color: var(--gold-br); font-size: 16px; text-shadow: 0 0 10px rgba(255,204,102,0.3); }
-        .p-age { position: absolute; top: 10px; right: 10px; font-family: 'JetBrains Mono'; font-size: 10px; color: #444; }
-        .p-name { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); font-weight: 900; color: #555; font-size: 15px; letter-spacing: 4px; }
-        .p-shishen { position: absolute; bottom: 10px; left: 10px; font-size: 10px; color: #333; border: 0.5px solid #222; padding: 1px 3px; }
-        .p-branch { position: absolute; bottom: 10px; right: 10px; font-family: 'JetBrains Mono'; font-size: 11px; color: #333; }
+        /* 宫位细节 */
+        .p-gan { position: absolute; top: 8px; left: 8px; color: var(--gold); font-weight: bold; font-size: 16px; }
+        .p-age { position: absolute; top: 8px; right: 8px; color: #444; font-size: 11px; }
+        .p-name { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); color: var(--gold-dark); font-weight: bold; font-size: 16px; letter-spacing: 2px; }
+        .p-shishen { position: absolute; bottom: 8px; left: 8px; font-size: 10px; color: #333; }
+        .p-branch { position: absolute; bottom: 8px; right: 8px; font-size: 11px; color: #333; }
 
-        .star-stack { display: flex; flex-direction: row-reverse; gap: 10px; height: 130px; margin-top: 20px; }
-        .m-star { writing-mode: vertical-rl; font-size: 22px; font-weight: 900; color: #eee; letter-spacing: 4px; position: relative; }
-        .m-star.hua-ji::after { content: '忌'; position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); background: var(--ji); color: #fff; font-size: 9px; padding: 2px; border-radius: 2px; writing-mode: horizontal-tb; }
-        .s-star { writing-mode: vertical-rl; font-size: 12px; color: #666; margin-top: 15px; }
+        .star-container { display: flex; flex-direction: row-reverse; gap: 8px; height: 130px; margin-top: 20px; }
+        .main-star { writing-mode: vertical-rl; font-size: 22px; font-weight: bold; color: #eee; letter-spacing: 3px; }
+        .main-star.ji::after { content: '忌'; background: #900; color: #fff; font-size: 10px; padding: 2px; border-radius: 2px; writing-mode: horizontal-tb; position: absolute; bottom: -15px; left: 0; }
+        .sub-star { writing-mode: vertical-rl; font-size: 12px; color: #666; margin-top: 10px; }
 
-        /* 中宫核心面板 (图3深度致敬) */
-        .center-panel {
-            grid-area: 2 / 2 / 4 / 4; background: #000; border: 1px solid var(--gold);
-            display: flex; flex-direction: column; padding: 25px; box-shadow: 0 0 50px rgba(0,0,0,1); z-index: 5;
+        /* 中宫 UI 重构 */
+        .center-hub {
+            grid-area: 2 / 2 / 4 / 4; background: #000; border: 1px solid var(--gold-dark);
+            display: flex; flex-direction: column; padding: 20px; justify-content: space-between;
         }
-        .center-panel h2 { font-family: 'Zhi Mang Xing'; color: var(--gold); font-size: 48px; margin: 0; text-align: center; letter-spacing: 8px; }
-        .core-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 25px; }
-        .meta-box { border: 1px solid #222; padding: 8px; text-align: center; font-size: 12px; color: var(--gold); background: rgba(198,163,95,0.03); }
-        .bazi-strip { grid-column: span 2; display: flex; justify-content: space-around; background: var(--gold); color: #000; padding: 10px; font-weight: 900; font-family: 'JetBrains Mono'; margin: 15px 0; }
-        
-        .current-time-layer { font-size: 11px; color: var(--gold-br); text-align: center; border-top: 1px dashed #333; padding-top: 15px; opacity: 0.8; }
+        .hub-title { border-bottom: 2px solid var(--gold-dark); text-align: center; padding-bottom: 10px; }
+        .hub-title h2 { margin: 0; color: var(--gold); letter-spacing: 5px; font-size: 28px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .info-item { border: 1px solid #222; padding: 6px; font-size: 13px; color: var(--gold); text-align: center; }
+        .bazi-box { background: var(--gold-dark); color: #000; padding: 8px; display: flex; justify-content: space-around; font-weight: bold; font-size: 15px; margin: 10px 0; }
 
-        /* 解析控制台 */
-        .console { display: flex; flex-direction: column; gap: 25px; }
-        .audit-card { background: var(--panel); border: 1px solid #222; padding: 30px; position: relative; }
-        .audit-card::before { content: ""; position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: var(--gold); }
-        .audit-card h3 { font-family: 'Zhi Mang Xing'; font-size: 28px; color: var(--gold); margin: 0 0 20px 0; }
-
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        .action-btn { flex: 1; background: transparent; border: 1px solid var(--gold); color: var(--gold); padding: 12px; cursor: pointer; font-weight: 900; transition: 0.3s; }
-        .action-btn:hover { background: var(--gold); color: #000; }
-
-        /* 动画激活 */
-        @keyframes scan { 0% { opacity: 0; transform: scale(1.1); } 100% { opacity: 1; transform: scale(1); } }
+        /* 解析侧边栏 - 严格拆分 */
+        .sidebar { display: flex; flex-direction: column; gap: 20px; }
+        .audit-section { background: #111; border: 1px solid var(--border); padding: 20px; border-top: 3px solid var(--gold-dark); }
+        .audit-section h3 { margin: 0 0 15px 0; color: var(--gold); font-size: 18px; border-bottom: 1px solid #222; padding-bottom: 5px; }
+        .log-box { font-size: 11px; color: #444; height: 40px; overflow: hidden; font-family: monospace; line-height: 1.4; }
+        .result-box { font-size: 14px; line-height: 1.8; color: #aaa; min-height: 100px; }
+        .audit-btn { width: 100%; background: none; border: 1px solid var(--gold-dark); color: var(--gold); padding: 8px; margin-top: 10px; cursor: pointer; transition: 0.3s; }
+        .audit-btn:hover { background: #1a1a1a; }
     </style>
 </head>
 <body>
 
-<div class="top-nav">
-    <select><option>乾造 (男)</option></select>
+<div class="top-bar">
+    <select id="gender"><option value="1">乾造 (男)</option><option value="0">坤造 (女)</option></select>
     <select id="ySel"></select>
     <select id="mSel"></select>
     <select id="dSel"></select>
     <select id="hSel"></select>
-    <button onclick="igniteEngine()">布陣 · 排盤</button>
+    <button onclick="deployChart()">布阵排盘</button>
 </div>
 
-<div class="engine-room">
-    <div class="chart-matrix" id="matrix">
-        <div class="center-panel">
-            <h2>命理終端</h2>
-            <div style="text-align:center; font-size:10px; opacity:0.4; letter-spacing:3px;">METAPHYSICS QUANTUM CORE 2.0</div>
-            <div class="core-meta">
-                <div class="meta-box">命宮: 寅宮</div>
-                <div class="meta-box">身宮: 午宮</div>
-                <div class="meta-box">局數: 木三局</div>
-                <div class="meta-box">生肖: 甲戌犬</div>
-                <div class="bazi-strip"><span>甲戌</span><span>己巳</span><span>壬申</span><span>丙午</span></div>
+<div class="layout-container">
+    <div class="chart-grid" id="mainGrid">
+        <div class="center-hub">
+            <div class="hub-title"><h2>命理终端</h2></div>
+            <div class="info-grid">
+                <div class="info-item">命宫: <span id="c-ming">--</span></div>
+                <div class="info-item">身宫: <span id="c-shen">--</span></div>
+                <div class="info-item">局数: <span id="c-ju">--</span></div>
+                <div class="info-item">生肖: <span id="c-sx">--</span></div>
             </div>
-            <div class="current-time-layer">
-                當前流年: 2026 丙午 <br>
-                氣數監控: 天同化祿 / 廉貞化忌 [預警]
+            <div class="bazi-box" id="c-bazi">
+                <span>--</span><span>--</span><span>--</span><span>--</span>
+            </div>
+            <div style="text-align: center; font-size: 11px; color: #555;">
+                当前流年: 2026 丙午
             </div>
         </div>
     </div>
 
-    <div class="console">
-        <div class="audit-card">
-            <h3>時空審計</h3>
-            <div id="log" style="font-family:'JetBrains Mono'; font-size:11px; color:#444; margin-bottom:15px;">> 等待引擎啟動...</div>
-            <div id="result" style="line-height:2; font-size:15px; color:#aaa;">
-                請輸入生辰並啟動“布陣”，系統將自動檢索天星坐標。
-            </div>
-            <div class="btn-group">
-                <button class="action-btn" onclick="runAnalysis('full')">命盤全析</button>
-                <button class="action-btn" onclick="runAnalysis('decade')">大限詳析</button>
-            </div>
+    <div class="sidebar">
+        <div class="audit-section">
+            <h3>命盘全析</h3>
+            <div id="log-full" class="log-box">> 引擎就绪...</div>
+            <div id="res-full" class="result-box">等待数据注入...</div>
+            <button class="audit-btn" onclick="runAnalysis('full')">启动全盘深度审计</button>
+        </div>
+
+        <div class="audit-section">
+            <h3>大限详析</h3>
+            <div id="log-limit" class="log-box">> 轨道监控正常...</div>
+            <div id="res-limit" class="result-box">等待大运推演...</div>
+            <button class="audit-btn" onclick="runAnalysis('limit')">执行十年运势分析</button>
         </div>
     </div>
 </div>
 
 <script>
-    // 初始化选择框
+    // 1. 补齐所有下拉选项
     const ySel = document.getElementById('ySel');
-    for(let i=1970; i<=2030; i++) ySel.options.add(new Option(`${i}年`, i));
-    // ... 其他初始化略过
+    const mSel = document.getElementById('mSel');
+    const dSel = document.getElementById('dSel');
+    const hSel = document.getElementById('hSel');
 
-    const PALACE_CONFIG = [
-        { name: "命宮", gan: "丙", age: "3-12", main: ["廉貞","七殺"], sub: ["擎羊","天哭"], hua: "ji", shen: "長生" },
-        { name: "兄弟", gan: "丁", age: "13-22", main: ["天梁"], sub: ["左輔","文昌"], hua: "", shen: "沐浴" },
-        { name: "夫妻", gan: "戊", age: "23-32", main: ["紫微","天相"], sub: ["地空","地劫"], hua: "", shen: "冠帶" },
-        { name: "子女", gan: "己", age: "33-42", main: ["天機","巨門"], sub: ["火星","天鉞"], hua: "lu", shen: "臨官" },
-        { name: "財帛", gan: "庚", age: "43-52", main: ["貪狼"], sub: ["鈴星","陀羅"], hua: "", shen: "帝旺" },
-        { name: "疾厄", gan: "辛", age: "54-63", main: ["太陽","太陰"], sub: ["天魁","右弼"], hua: "", shen: "衰" },
-        { name: "遷移", gan: "壬", age: "64-73", main: ["武曲","天府"], sub: ["祿存","天馬"], hua: "", shen: "病" },
-        { name: "奴僕", gan: "癸", age: "74-83", main: ["天同"], sub: ["文曲"], hua: "", shen: "死" },
-        { name: "官祿", gan: "甲", age: "84-93", main: ["破軍"], sub: ["台輔"], hua: "", shen: "墓" },
-        { name: "田宅", gan: "乙", age: "94-103", main: ["无主星"], sub: ["紅鸞","天喜"], hua: "", shen: "絕" },
-        { name: "福德", gan: "丙", age: "104-113", main: ["廉貞"], sub: ["龍池","鳳閣"], hua: "", shen: "胎" },
-        { name: "父母", gan: "丁", age: "114-123", main: ["巨門"], sub: ["寡宿"], hua: "", shen: "養" }
+    for(let i=1970; i<=2030; i++) ySel.options.add(new Option(`${i}年`, i));
+    for(let i=1; i<=12; i++) mSel.options.add(new Option(`${i}月`, i));
+    for(let i=1; i<=30; i++) dSel.options.add(new Option(`${i}日`, i));
+    const hours = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+    hours.forEach(h => hSel.options.add(new Option(`${h}时`, h)));
+
+    const PALACE_DATA = [
+        { name: "命宫", gan: "丙", age: "4-13", main: ["廉贞","七杀"], sub: ["擎羊"], hua: "ji", shen: "长生" },
+        { name: "兄弟", gan: "丁", age: "14-23", main: ["天梁"], sub: ["左辅"], hua: "", shen: "沐浴" },
+        { name: "夫妻", gan: "戊", age: "24-33", main: ["紫微","天相"], sub: ["地劫"], hua: "", shen: "冠带" },
+        { name: "子女", gan: "己", age: "34-43", main: ["天机","巨门"], sub: ["火星"], hua: "lu", shen: "临官" },
+        { name: "财帛", gan: "庚", age: "44-53", main: ["贪狼"], sub: ["陀罗"], hua: "", shen: "帝旺" },
+        { name: "疾厄", gan: "辛", age: "54-63", main: ["太阳","太阴"], sub: ["天魁"], hua: "", shen: "衰" },
+        { name: "迁移", gan: "壬", age: "64-73", main: ["武曲","天府"], sub: ["禄存"], hua: "", shen: "病" },
+        { name: "奴仆", gan: "癸", age: "74-83", main: ["天同"], sub: ["文曲"], hua: "", shen: "死" },
+        { name: "官禄", gan: "甲", age: "84-93", main: ["破军"], sub: ["天马"], hua: "", shen: "墓" },
+        { name: "田宅", gan: "乙", age: "94-103", main: ["无主星"], sub: ["红鸾"], hua: "", shen: "绝" },
+        { name: "福德", gan: "丙", age: "104-113", main: ["廉贞"], sub: ["龙池"], hua: "", shen: "胎" },
+        { name: "父母", gan: "丁", age: "114-123", main: ["巨门"], sub: ["天哭"], hua: "", shen: "养" }
     ];
 
-    const gridLayout = ["4/1", "4/2", "4/3", "4/4", "3/4", "2/4", "1/4", "1/3", "1/2", "1/1", "2/1", "3/1"];
+    const layout = ["4/1", "4/2", "4/3", "4/4", "3/4", "2/4", "1/4", "1/3", "1/2", "1/1", "2/1", "3/1"];
 
-    function igniteEngine() {
-        const matrix = document.getElementById('matrix');
-        Array.from(matrix.querySelectorAll('.palace')).forEach(p => p.remove());
-
-        PALACE_CONFIG.forEach((d, i) => {
+    // 2. 初始化显示空位（虚影状态）
+    function initEmpty() {
+        const grid = document.getElementById('mainGrid');
+        PALACE_DATA.forEach((d, i) => {
             const p = document.createElement('div');
             p.className = 'palace';
-            p.style.gridArea = gridLayout[i];
+            p.style.gridArea = layout[i];
+            p.innerHTML = `<div class="p-name" style="opacity:0.2">${d.name}</div>`;
+            grid.appendChild(p);
+        });
+    }
+
+    // 3. 执行排盘
+    function deployChart() {
+        const grid = document.getElementById('mainGrid');
+        Array.from(grid.querySelectorAll('.palace')).forEach(e => e.remove());
+
+        // 更新中宫信息
+        document.getElementById('c-ming').innerText = "寅宫";
+        document.getElementById('c-ju').innerText = "木三局";
+        document.getElementById('c-sx').innerText = "甲戌犬";
+        document.getElementById('c-bazi').innerHTML = "<span>甲戌</span><span>己巳</span><span>壬申</span><span>丙午</span>";
+
+        PALACE_DATA.forEach((d, i) => {
+            const p = document.createElement('div');
+            p.className = 'palace active';
+            p.style.gridArea = layout[i];
             
             let sHTML = '';
             d.main.forEach((s, idx) => {
-                const huaClass = (idx === 0 && d.hua) ? `hua-${d.hua}` : '';
-                sHTML += `<div class="m-star ${huaClass}">${s}</div>`;
+                const jClass = (idx === 0 && d.hua === 'ji') ? 'ji' : '';
+                sHTML += `<div class="main-star ${jClass}">${s}</div>`;
             });
-            d.sub.forEach(s => sHTML += `<div class="s-star">${s}</div>`);
+            d.sub.forEach(s => sHTML += `<div class="sub-star">${s}</div>`);
 
             p.innerHTML = `
-                <div class="p-dx-gan">${d.gan}</div>
+                <div class="p-gan">${d.gan}</div>
                 <div class="p-age">${d.age}</div>
-                <div class="star-stack">${sHTML}</div>
+                <div class="star-container">${sHTML}</div>
                 <div class="p-name">${d.name}</div>
                 <div class="p-shishen">${d.shen}</div>
                 <div class="p-branch">${["寅","卯","辰","巳","午","未","申","酉","戌","亥","子","丑"][i]}</div>
             `;
-            matrix.appendChild(p);
-            
-            // 矩阵入场动画：逐个扩散
-            setTimeout(() => p.classList.add('active'), i * 50);
+            grid.appendChild(p);
         });
-        
-        document.getElementById('log').innerHTML = "> 內核初始化完畢...<br>> 天星軌道對齊... [OK]<br>> 正在讀取 2026 流年參數...";
     }
 
-    function runAnalysis(mode) {
-        const res = document.getElementById('result');
-        res.style.opacity = "0.3";
-        document.getElementById('log').innerHTML += `<br>> 啟動${mode === 'full' ? '命盤全析' : '大限詳析'}模組...`;
-        
+    // 4. 深度审计逻辑
+    function runAnalysis(type) {
+        const logId = type === 'full' ? 'log-full' : 'log-limit';
+        const resId = type === 'full' ? 'res-full' : 'res-limit';
+        const log = document.getElementById(logId);
+        const res = document.getElementById(resId);
+
+        log.innerHTML = "> 正在连接天星数据库...<br>> 坐标对齐成功...";
+        res.innerHTML = "系统正在计算中...";
+
         setTimeout(() => {
-            res.style.opacity = "1";
-            res.innerHTML = mode === 'full' ? 
-                "【乾坤審計】廉貞七殺坐命，主英雄之志，亦主孤克之憂。此生如仗劍獨行，功名在乎「殺破狼」之變革，唯須防化忌之干擾，方顯明珠之色。" :
-                "【週期趨勢】當前大限行至財帛位，貪狼坐守。此十載為欲望與才華之爆發期。火鈴相會，主橫發之機，然戒焦戒躁，防財多身弱之憾。";
-        }, 1200);
+            if(type === 'full') {
+                res.innerHTML = "【整体解析】命宫廉贞七杀在寅，化忌同宫。此象主性格刚毅、敢于开拓，但人生多纠葛，容易陷入自我矛盾。事业宜在动荡中求财，需防范情绪化决策导致的阻碍。";
+            } else {
+                res.innerHTML = "【大限详解】当前步入十年财帛大运。贪狼坐守，欲望扩张，财源较广但起伏剧烈。此运程宜保持定力，戒骄戒躁，谨防因小失大，是积累经验与财富的关键期。";
+            }
+            log.innerHTML += "<br>> 推演完成。";
+        }, 1000);
     }
+
+    window.onload = initEmpty;
 </script>
 </body>
 </html>
