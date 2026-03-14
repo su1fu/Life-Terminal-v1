@@ -1,0 +1,19 @@
+{
+  "version": "2026.1",
+  "author": "su1fu",
+  "category": "Developer_Crisis_Management",
+  "data": [
+    {
+      "trigger": "TIAN_JI_HUA_JI",
+      "risk_type": "LOGIC_LOOP",
+      "warning": "代码架构存在过度设计或逻辑死循环风险。",
+      "commands": ["STOP_REFACTORING", "FORCE_UNIT_TEST"]
+    },
+    {
+      "trigger": "WU_QU_HUA_JI",
+      "risk_type": "RESOURCE_CRASH",
+      "warning": "系统硬性资源（资金/算力/执行力）面临断裂风险。",
+      "commands": ["HALT_DEPLOYMENT", "FREEZE_BUDGET"]
+    }
+  ]
+}
