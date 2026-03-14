@@ -3,93 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>生命终端 | 2026 磁场审计</title>
+    <title>LIFE TERMINAL PRO | 紫微智算</title>
     <style>
-        :root { --green: #00ff41; --bg: #050505; --danger: #ff3131; }
-        body { background: var(--bg); color: var(--green); font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; padding: 20px; line-height: 1.6; }
-        .terminal { max-width: 600px; margin: 0 auto; border: 1px solid var(--green); padding: 25px; box-shadow: 0 0 20px rgba(0, 255, 65, 0.2); }
-        h2 { border-bottom: 2px solid var(--green); padding-bottom: 10px; font-weight: normal; letter-spacing: 2px; }
-        .form-group { margin: 25px 0; }
-        label { display: block; margin-bottom: 10px; font-size: 14px; opacity: 0.8; }
-        select { background: #000; color: var(--green); border: 1px solid var(--green); padding: 12px; width: 100%; font-size: 16px; outline: none; }
-        button { background: var(--green); color: #000; border: none; padding: 15px; width: 100%; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
-        button:hover { background: #fff; box-shadow: 0 0 15px #fff; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;600&display=swap');
+        :root { --gold: #d4af37; --white: #e6e6e6; --bg: #0d0d0d; --danger: #af3a3a; }
+        * { box-sizing: border-box; transition: all 0.4s ease; }
+        body { background: var(--bg); color: var(--white); font-family: 'Noto Serif SC', serif; margin: 0; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
         
-        /* 结果展示区 */
-        #result { display: none; margin-top: 30px; border-top: 1px dashed var(--green); padding-top: 20px; }
-        .palace-tag { display: inline-block; border: 1px solid var(--green); padding: 2px 8px; margin-right: 10px; font-size: 12px; }
-        .analysis-box { background: rgba(0, 255, 65, 0.05); border-left: 4px solid var(--green); padding: 15px; margin: 15px 0; }
-        .warning { color: var(--danger); font-weight: bold; border: 1px solid var(--danger); padding: 10px; }
+        /* 粒子感蒙层 */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, rgba(212,175,55,0.05) 0%, transparent 80%); pointer-events: none; }
+
+        .container { width: 95%; max-width: 1200px; padding: 40px 0; z-index: 10; }
+        header { text-align: center; margin-bottom: 50px; }
+        header h1 { font-size: 32px; letter-spacing: 12px; color: var(--gold); margin: 0; font-weight: 200; }
+        header p { font-size: 12px; letter-spacing: 4px; opacity: 0.5; margin-top: 10px; }
+
+        /* 输入面板 */
+        .input-panel { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; background: rgba(255,255,255,0.02); padding: 30px; border: 0.5px solid rgba(212,175,55,0.2); backdrop-filter: blur(10px); }
+        .group { display: flex; flex-direction: column; gap: 8px; }
+        label { font-size: 11px; color: var(--gold); letter-spacing: 2px; }
+        select, input { background: transparent; border: 0.5px solid rgba(255,255,255,0.2); color: white; padding: 10px 20px; font-family: inherit; outline: none; width: 160px; }
+        select:focus { border-color: var(--gold); }
+        button { background: var(--gold); color: black; border: none; padding: 12px 40px; cursor: pointer; font-weight: bold; letter-spacing: 2px; margin-top: 20px; }
+        button:hover { background: white; transform: scale(1.05); }
+
+        /* 动态星盘 */
+        .chart-wrapper { display: none; margin-top: 50px; animation: fadeIn 1.5s ease; }
+        .chart-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); gap: 10px; width: 100%; max-width: 800px; margin: 0 auto; aspect-ratio: 1/1; }
+        .cell { border: 0.5px solid rgba(212,175,55,0.1); position: relative; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; background: rgba(255,255,255,0.01); }
+        .cell.center { grid-area: 2 / 2 / 4 / 4; display: flex; align-items: center; justify-content: center; border: none; background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 70%); }
+        .palace-name { position: absolute; bottom: 5px; right: 5px; font-size: 10px; opacity: 0.4; }
+        .stars { writing-mode: vertical-rl; font-size: 18px; letter-spacing: 4px; }
+        .star-main { color: var(--gold); }
+        .star-bad { color: var(--danger); }
+
+        /* 解析面板 */
+        .analysis-panel { margin-top: 50px; display: none; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .card { background: rgba(255,255,255,0.03); border-left: 2px solid var(--gold); padding: 25px; }
+        .card h3 { color: var(--gold); margin-top: 0; font-weight: 200; border-bottom: 0.5px solid rgba(212,175,55,0.2); padding-bottom: 10px; }
+        .card p { font-size: 14px; line-height: 1.8; opacity: 0.8; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
+    <div class="overlay"></div>
+    <div class="container">
+        <header>
+            <h1>生命終端 · 智算</h1>
+            <p>LIFE TERMINAL PRO | SYSTEM RELOADED</p>
+        </header>
 
-<div class="terminal">
-    <h2>生命终端 · 2026 审计</h2>
-    
-    <div class="form-group">
-        <label>● 输入观测维度：农历月份</label>
-        <select id="month">
-            <option value="1">正月</option><option value="2">二月</option><option value="3">三月</option>
-            <option value="4">四月</option><option value="5">五月</option><option value="6">六月</option>
-            <option value="7">七月</option><option value="8">八月</option><option value="9">九月</option>
-            <option value="10">十月</option><option value="11">十一月</option><option value="12">腊月</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label>● 输入观测维度：出生时辰</label>
-        <select id="hour">
-            <option value="0">寅时 (03-05)</option><option value="1">卯时 (05-07)</option>
-            <option value="2">辰时 (07-09)</option><option value="3">巳时 (09-11)</option>
-            <option value="4">午时 (11-13)</option><option value="5">未时 (13-15)</option>
-            <option value="6">申时 (15-17)</option><option value="7">酉时 (17-19)</option>
-            <option value="8">戌时 (19-21)</option><option value="9">亥时 (21-23)</option>
-            <option value="10">子时 (23-01)</option><option value="11">丑时 (01-03)</option>
-        </select>
-    </div>
-
-    <button onclick="calculate()">执行 2026 风险审计</button>
-
-    <div id="result">
-        <div><span class="palace-tag">命宫坐标</span> <span id="life-pos">--</span></div>
-        <div class="analysis-box">
-            <b style="color: #fff;">>> 专业解析建议：</b><br>
-            <span id="analysis-text"></span>
+        <div class="input-panel">
+            <div class="group"><label>生月</label><select id="month"><option value="3">农历三月</option><option value="1">正月</option><option value="2">二月</option><option value="4">四月</option></select></div>
+            <div class="group"><label>生日</label><input type="number" id="day" value="15" min="1" max=30></div>
+            <div class="group"><label>时辰</label><select id="hour"><option value="4">午时 (11-13)</option><option value="6">申时 (15-17)</option></select></div>
+            <button onclick="renderSystem()">开启推演</button>
         </div>
-        <div id="danger-zone" class="warning" style="display:none;">
-            🚨 核心预警：[天机化忌] 正在冲击你的官禄磁场。
+
+        <div class="chart-wrapper" id="chart-area">
+            <div class="chart-grid" id="grid">
+                </div>
+        </div>
+
+        <div class="analysis-panel" id="analysis-area">
+            <div class="card">
+                <h3>大运审计 [十年]</h3>
+                <p id="dayun-text"></p>
+            </div>
+            <div class="card">
+                <h3>流年核算 [2026 丙午]</h3>
+                <p id="liunian-text"></p>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    const branches = ["寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥", "子", "丑"];
+    <script>
+        const palaces = ["巳","午","未","申","辰","中","中","酉","卯","寅","丑","子","亥"]; // 简略布局
+        const palaceNames = ["父母", "福德", "田宅", "官禄", "命宫", "", "", "奴仆", "兄弟", "夫妻", "子女", "财帛", "疾厄"];
 
-    function calculate() {
-        const m = parseInt(document.getElementById('month').value);
-        const h = parseInt(document.getElementById('hour').value);
-        
-        // 核心排盘算法：寅宫起正月，顺数月，逆数时
-        const lifeIdx = (m - 1 - h + 12) % 12;
-        document.getElementById('life-pos').textContent = branches[lifeIdx] + "宫";
+        function renderSystem() {
+            const m = parseInt(document.getElementById('month').value);
+            const h = parseInt(document.getElementById('hour').value);
+            const d = parseInt(document.getElementById('day').value);
 
-        let text = "根据 2026 丙午流年测算：天同化禄、天机化忌。";
-        
-        // 专业断语逻辑
-        if (lifeIdx === 6) { // 申宫
-            text += "今年命宫与流年磁场对冲，变动极大。建议保持低频操作。";
-        } else {
-            text += "命主磁场尚稳，但需注意技术逻辑的连贯性。";
+            // 视觉唤醒
+            document.getElementById('chart-area').style.display = 'block';
+            document.getElementById('analysis-area').style.display = 'grid';
+
+            // 模拟排盘逻辑
+            const lifeIdx = (m - 1 - h + 12) % 12;
+            const grid = document.getElementById('grid');
+            grid.innerHTML = "";
+
+            for(let i=0; i<16; i++) {
+                const cell = document.createElement('div');
+                cell.className = "cell";
+                if(i==5||i==6||i==9||i==10) { 
+                    if(i==5) {
+                        cell.className = "cell center";
+                        cell.innerHTML = `<div><div style="font-size:40px; color:#d4af37">丙午</div><div style="opacity:0.5">2026 流年</div></div>`;
+                    } else { cell.style.display="none"; }
+                } else {
+                    const idx = i > 5 ? i-3 : i; // 简化宫位映射
+                    cell.innerHTML = `<span class="palace-name">${palaceNames[idx%12]}</span><div class="stars"><span class="star-main">紫微</span><br><span>七杀</span></div>`;
+                    if(palaceNames[idx%12] === "官禄") {
+                        cell.innerHTML += `<div class="star-bad" style="font-size:12px; border:1px solid; margin-top:5px; padding:2px;">天机化忌</div>`;
+                    }
+                }
+                grid.appendChild(cell);
+            }
+
+            // 专业深度解析
+            document.getElementById('dayun-text').innerHTML = `当前大运步入“破局”阶段。出生于农历${m}月${d}日，你的先天命格带有明显的震荡属性。本大运期间，迁移宫位波动剧烈，适合向外求财，忌守旧。`;
+            document.getElementById('liunian-text').innerHTML = `2026 丙午年触发<span style="color:#af3a3a; font-weight:bold;">天机化忌</span>直冲官禄宫。这对开发者是极大的考验。天机主逻辑，化忌为阻滞。今年你的所有项目计划都会面临至少三次以上的推倒重来。<b>建议：</b>不要迷恋完美架构，先保证核心逻辑跑通。`;
         }
-        
-        text += " 针对程序员职业：天机化忌入流年官禄。这意味着你现在的代码重构计划存在严重逻辑死循环风险。";
-
-        document.getElementById('analysis-text').textContent = text;
-        document.getElementById('result').style.display = 'block';
-        document.getElementById('danger-zone').style.display = 'block';
-    }
-</script>
-
+    </script>
 </body>
 </html>
