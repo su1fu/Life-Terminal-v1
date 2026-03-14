@@ -2,196 +2,234 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>TERMINAL 6.0 | 賽博紫微專業智算中心</title>
+    <title>TERMINAL 7.0 | 終極命理智算中心</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;900&display=swap');
-        :root { --gold: #d4af37; --bg: #050505; --card: #121212; --major: #ffcc00; --minor: #999; --alert: #ff3333; --cyan: #00f3ff; }
-        body { background: var(--bg); color: #ccc; font-family: 'Noto Serif SC', serif; margin: 0; padding: 10px; overflow-x: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;900&family=Share+Tech+Mono&display=swap');
         
-        /* 布局 */
-        .terminal-container { display: grid; grid-template-columns: 880px 1fr; gap: 15px; max-width: 1400px; margin: 0 auto; }
-        
-        /* 控制面板 */
-        .control-panel { background: #1a1a1a; padding: 10px; display: flex; gap: 10px; justify-content: center; border-bottom: 2px solid var(--gold); margin-bottom: 10px; border-radius: 4px; }
-        select, button { background: #000; border: 1px solid #444; color: var(--gold); padding: 6px 12px; font-weight: bold; }
-        button { background: var(--gold); color: #000; border: none; cursor: pointer; transition: 0.3s; }
-        button:hover { background: #fff; box-shadow: 0 0 15px var(--gold); }
+        :root {
+            --gold: #d4af37; --bg: #020202; --panel: #0a0a0a; --accent: #00f3ff;
+            --lu: #4caf50; --quan: #2196f3; --ke: #9c27b0; --ji: #f44336;
+        }
 
-        /* 专业星盘网格 */
-        .ziwei-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); gap: 3px; background: #222; border: 2px solid #333; aspect-ratio: 1/1; }
-        
-        .palace { background: var(--card); position: relative; padding: 10px; border: 1px solid #222; overflow: hidden; display: flex; justify-content: space-between; transition: 0.3s; }
-        .palace:hover { background: #1a1a1a; border-color: var(--gold); z-index: 10; transform: scale(1.02); }
+        body { background: var(--bg); color: #eee; font-family: 'Noto Serif SC', serif; margin: 0; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
 
-        /* 星曜排版 - 垂直书写 */
-        .star-group-main { display: flex; flex-direction: row-reverse; gap: 4px; height: 85%; }
-        .star-m { writing-mode: vertical-rl; font-size: 20px; font-weight: 900; color: var(--major); letter-spacing: 2px; }
-        .star-s { writing-mode: vertical-rl; font-size: 11px; color: var(--minor); letter-spacing: 1px; margin-top: 5px; }
-        
-        /* 四化标记 */
-        .sh { display: inline-block; width: 16px; height: 16px; line-height: 16px; text-align: center; border-radius: 2px; font-size: 10px; margin-top: 4px; color: #000; font-weight: 900; }
-        .sh-ji { background: var(--alert); } .sh-lu { background: #44ff44; } .sh-quan { background: var(--cyan); } .sh-ke { background: #ff44ff; }
+        /* 扫描线动画 */
+        body::before {
+            content: " "; position: fixed; top: 0; left: 0; width: 100%; height: 2px;
+            background: rgba(0, 243, 255, 0.1); z-index: 100; pointer-events: none;
+            animation: scanning 4s linear infinite;
+        }
+        @keyframes scanning { 0% { top: 0; } 100% { top: 100%; } }
 
-        /* 宫位细节信息 */
-        .p-info-bottom { position: absolute; bottom: 5px; left: 8px; right: 8px; display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid #333; padding-top: 4px; }
-        .p-name { color: var(--gold); font-weight: 900; font-size: 15px; letter-spacing: 1px; }
-        .p-dz { color: #555; font-size: 12px; font-family: monospace; }
-        .p-age { position: absolute; top: 5px; right: 8px; font-size: 10px; color: #444; }
+        /* 控制区 */
+        .controls { background: var(--panel); width: 100%; padding: 15px; display: flex; justify-content: center; gap: 15px; border-bottom: 1px solid #333; z-index: 10; }
+        select, button { background: #111; border: 1px solid var(--gold); color: var(--gold); padding: 8px 15px; font-family: 'Share Tech Mono', monospace; cursor: pointer; }
+        button:hover { background: var(--gold); color: #000; box-shadow: 0 0 20px var(--gold); }
 
-        /* 中央数据枢纽 */
-        .center-hub { grid-area: 2 / 2 / 4 / 4; background: #050505; border: 1px solid #444; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        .bazi-box { display: flex; gap: 15px; margin-top: 10px; }
-        .bazi-col { text-align: center; padding: 5px 10px; border: 1px solid #222; }
-        .bazi-col label { font-size: 10px; color: #666; display: block; }
-        .bazi-col span { font-size: 20px; color: var(--gold); font-weight: 900; }
+        /* 盘面架构 */
+        .master-container { display: grid; grid-template-columns: 900px 400px; gap: 20px; padding: 20px; animation: fadeIn 1.5s ease; }
+        .chart-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); gap: 5px; background: #1a1a1a; padding: 5px; border: 1px solid #444; position: relative; }
 
-        /* 侧边深度解析 */
-        .side-audit { padding: 15px; display: flex; flex-direction: column; gap: 20px; height: 880px; overflow-y: auto; background: #0d0d0d; border-left: 2px solid var(--gold); }
-        .audit-card { background: #151515; padding: 15px; border-radius: 4px; border-top: 2px solid var(--gold); }
-        .audit-card h3 { margin: 0 0 10px 0; color: var(--gold); font-size: 16px; letter-spacing: 2px; }
-        .audit-log { font-family: 'Courier New', monospace; font-size: 13px; color: #00ff00; line-height: 1.6; }
-        .audit-log b { color: var(--cyan); }
+        /* 宫位细节 */
+        .palace {
+            background: #050505; border: 1px solid #222; padding: 10px; position: relative;
+            display: flex; flex-direction: column; transition: all 0.4s; min-height: 200px;
+        }
+        .palace:hover { border-color: var(--accent); background: #080808; transform: scale(1.02); z-index: 5; }
+
+        /* 星曜排布 */
+        .star-container { display: flex; flex-direction: row-reverse; gap: 8px; flex-grow: 1; }
+        .major-star { writing-mode: vertical-rl; font-size: 22px; font-weight: 900; color: var(--major, var(--gold)); letter-spacing: 3px; }
+        .minor-star { writing-mode: vertical-rl; font-size: 12px; color: #888; margin-top: 10px; }
+
+        /* 四化徽章 */
+        .sihua-badge {
+            display: inline-block; width: 18px; height: 18px; line-height: 18px; text-align: center;
+            border-radius: 50%; font-size: 10px; font-weight: bold; color: #fff; margin-top: 5px;
+        }
+        .ji { background: var(--ji); box-shadow: 0 0 10px var(--ji); }
+        .lu { background: var(--lu); }
+
+        /* 宫位元数据 (天干地支/年龄) */
+        .meta-top { position: absolute; top: 5px; right: 8px; font-size: 10px; color: #555; display: flex; flex-direction: column; align-items: flex-end; }
+        .meta-bottom { position: absolute; bottom: 8px; left: 8px; right: 8px; display: flex; justify-content: space-between; border-top: 1px solid #222; padding-top: 5px; }
+        .p-title { color: var(--gold); font-weight: bold; font-size: 16px; }
+        .p-gz { color: #666; font-family: 'Share Tech Mono'; }
+
+        /* 中心引擎动画 */
+        .center-engine {
+            grid-area: 2 / 2 / 4 / 4; background: #000; border: 1px dashed #444;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden;
+        }
+        .orb {
+            position: absolute; width: 200px; height: 200px; border: 1px solid var(--accent);
+            border-radius: 50%; opacity: 0.2; animation: rotate 10s linear infinite;
+        }
+        .orb-inner { width: 150px; height: 150px; border-style: dashed; animation: rotate-rev 15s linear infinite; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes rotate-rev { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+
+        /* 解析区域 */
+        .analysis-panel { display: flex; flex-direction: column; gap: 15px; }
+        .card { background: var(--panel); border: 1px solid #333; padding: 20px; border-radius: 4px; }
+        .card h3 { border-left: 3px solid var(--accent); padding-left: 10px; margin: 0 0 15px 0; color: var(--accent); font-size: 18px; }
+        .audit-line { margin-bottom: 12px; line-height: 1.6; font-size: 14px; }
+        .audit-line b { color: var(--gold); }
+        .tag { background: #222; padding: 2px 6px; border-radius: 3px; font-size: 11px; margin-right: 5px; color: var(--accent); border: 0.5px solid #444; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div class="control-panel">
-        <select id="year"></select>
-        <select id="month"></select>
-        <select id="day"></select>
-        <select id="hour">
-            <option value="1">子时 (23-01)</option><option value="2">丑时 (01-03)</option>
-            <option value="3">寅时 (03-05)</option><option value="4">卯时 (05-07)</option>
-            <option value="5">辰时 (07-09)</option><option value="6">巳时 (09-11)</option>
-            <option value="7">午时 (11-13)</option><option value="8">未时 (13-15)</option>
-            <option value="9">申时 (15-17)</option><option value="10">酉时 (17-19)</option>
-            <option value="11">戌时 (19-21)</option><option value="12">亥时 (21-23)</option>
+    <div class="controls">
+        <select id="birthYear"></select>
+        <select id="birthMonth"></select>
+        <select id="birthDay"></select>
+        <select id="birthHour">
+            <option value="1">子时 (23:00-01:00)</option><option value="2">丑时</option><option value="3">寅时</option>
+            <option value="4">卯时</option><option value="5">辰时</option><option value="6">巳时</option>
+            <option value="7">午时</option><option value="8">未时</option><option value="9">申时</option>
+            <option value="10">酉时</option><option value="11">戌时</option><option value="12">亥时</option>
         </select>
-        <button onclick="masterAudit()">启动全盘深度审计</button>
+        <button onclick="runUltimateAudit()">启动深层审计</button>
     </div>
 
-    <div class="terminal-container">
-        <div class="ziwei-grid" id="grid">
-            <div class="center-hub">
-                <div style="color:var(--gold); font-size: 24px; letter-spacing: 8px; font-weight:900">紫微終端</div>
-                <div style="color:#555; font-size: 10px; margin-top:5px;">CORE ARCHITECTURE AUDIT</div>
-                <div class="bazi-box" id="bazi-info"></div>
-                <div id="bureau-info" style="margin-top:10px; font-size:12px; color:var(--cyan)"></div>
+    <div class="master-container">
+        <div class="chart-grid" id="chartGrid">
+            <div class="center-engine" id="engine">
+                <div class="orb"></div>
+                <div class="orb orb-inner"></div>
+                <div style="z-index: 10; text-align: center;">
+                    <div id="core-bazi" style="font-size: 20px; color: var(--gold); font-weight: 900; letter-spacing: 5px;">命理核心</div>
+                    <div id="core-element" style="color: var(--accent); font-size: 12px; margin-top: 10px; font-family: 'Share Tech Mono';">WAITING FOR INPUT...</div>
+                </div>
             </div>
-        </div>
+            </div>
 
-        <div class="side-audit">
-            <div class="audit-card">
-                <h3>时空审计日志</h3>
-                <div class="audit-log" id="log-text">>> 等待生辰坐标对齐...</div>
+        <div class="analysis-panel">
+            <div class="card">
+                <h3>底层架构审计 (大白话版)</h3>
+                <div id="simple-analysis">系统就绪，请输入生辰进行生命周期审计。</div>
             </div>
-            <div class="audit-card">
-                <h3>底层架构建议</h3>
-                <div id="advice-text" style="font-size: 14px; color:#aaa; line-height:1.6">输入生辰后，系统将针对程序员命理进行全方位的底层代码与架构审计。</div>
+            <div class="card">
+                <h3>技术栈运势报告</h3>
+                <div id="tech-luck">
+                    <div class="audit-line"><span class="tag">稳定性</span> 待测</div>
+                    <div class="audit-line"><span class="tag">迭代力</span> 待测</div>
+                    <div class="audit-line"><span class="tag">财富流</span> 待测</div>
+                </div>
+            </div>
+            <div class="card" style="background: #000; border: 1px solid #444;">
+                <h3 style="color: #666; font-size: 14px;">DEBUG LOG</h3>
+                <div id="debug-log" style="font-family: 'Share Tech Mono'; font-size: 11px; color: #44ff44; height: 100px; overflow-y: auto;">
+                    > System Kernel v7.0.2 initialized...<br>
+                    > Encryption: RSA-4096 Enabled...
+                </div>
             </div>
         </div>
     </div>
 
-<script>
-    const DIZHI = ["寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥", "子", "丑"];
-    const PALACES = ["命宫", "兄弟", "夫妻", "子女", "财帛", "疾厄", "迁移", "奴仆", "官禄", "田宅", "福德", "父母"];
-    const STEMS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
-    
-    // 主星列表及落位公式（相对于紫微星）
-    const ZIWEI_GROUP = ["紫微", "天机", "", "太阳", "武曲", "天同", "", "", "廉贞"];
-    const TIANFU_GROUP = ["天府", "太阴", "贪狼", "巨门", "天相", "天梁", "七杀", "", "", "", "破军"];
-
-    window.onload = () => {
-        const y = document.getElementById('year'), m = document.getElementById('month'), d = document.getElementById('day');
-        for(let i=1970; i<=2035; i++) y.add(new Option(i + "年", i));
-        for(let i=1; i<=12; i++) m.add(new Option(i + "月", i));
-        for(let i=1; i<=30; i++) d.add(new Option(i + "日", i));
-        y.value = 1996;
-        initEmptyGrid();
-    };
-
-    function initEmptyGrid() {
-        const grid = document.getElementById('grid');
-        const layout = {"巳":"1/1","午":"1/2","未":"1/3","申":"1/4","辰":"2/1","酉":"2/4","卯":"3/1","戌":"3/4","寅":"4/1","丑":"4/2","子":"4/3","亥":"4/4"};
-        DIZHI.forEach((zhi, i) => {
-            const div = document.createElement('div');
-            div.className = 'palace'; div.id = 'p-' + i;
-            div.style.gridArea = layout[zhi];
-            div.innerHTML = `<div class="star-group-main" id="stars-${i}"></div><div class="p-info-bottom"><span class="p-name">待定</span><span class="p-dz">${zhi}</span></div><span class="p-age"></span>`;
-            grid.appendChild(div);
-        });
-    }
-
-    function masterAudit() {
-        const y = parseInt(document.getElementById('year').value);
-        const m = parseInt(document.getElementById('month').value);
-        const d = parseInt(document.getElementById('day').value);
-        const h = parseInt(document.getElementById('hour').value);
-
-        // 1. 定命宫 (寅起顺数月，生月起逆数时)
-        const mingIdx = (0 + (m - 1) - (h - 1) + 12) % 12;
-
-        // 2. 简易安紫微逻辑 (专业版公式：基于五行局和日数，此处简化模拟其分布感)
-        const ziweiPos = (mingIdx + d) % 12;
-        const tianfuPos = (4 - ziweiPos + 12) % 12;
-
-        // 3. 四化逻辑 (根据年干)
-        const stemIdx = (y - 4) % 10;
-        const sihuaMap = {
-            2: { star: "天机", type: "忌" }, // 丙年
-            6: { star: "太阳", type: "忌" }, // 庚年
-            0: { star: "太阳", type: "忌" }  // 甲年模拟
+    <script>
+        const DIZHI = ["寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥", "子", "丑"];
+        const TIAN_GAN = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
+        const PALACES = ["命宫", "兄弟", "夫妻", "子女", "财帛", "疾厄", "迁移", "奴仆", "官禄", "田宅", "福德", "父母"];
+        
+        window.onload = () => {
+            const y = document.getElementById('birthYear'), m = document.getElementById('birthMonth'), d = document.getElementById('birthDay');
+            for(let i=1970; i<=2025; i++) y.add(new Option(i + "年", i));
+            for(let i=1; i<=12; i++) m.add(new Option(i + "月", i));
+            for(let i=1; i<=30; i++) d.add(new Option(i + "日", i));
+            y.value = 1996; m.value = 6; d.value = 1;
+            renderBaseGrid();
         };
 
-        // 清空并重新排布
-        DIZHI.forEach((_, i) => {
-            const pIdx = (mingIdx - i + 12) % 12;
-            const container = document.getElementById(`p-${i}`);
-            container.querySelector('.p-name').innerText = PALACES[pIdx];
-            const starBox = document.getElementById(`stars-${i}`);
-            starBox.innerHTML = "";
+        function renderBaseGrid() {
+            const grid = document.getElementById('chartGrid');
+            const layout = ["4/1", "4/2", "4/3", "4/4", "3/4", "2/4", "1/4", "1/3", "1/2", "1/1", "2/1", "3/1"];
+            DIZHI.forEach((zhi, i) => {
+                const div = document.createElement('div');
+                div.className = 'palace'; div.id = `palace-${i}`;
+                div.style.gridArea = layout[i];
+                div.innerHTML = `
+                    <div class="meta-top">
+                        <span id="nashen-${i}">--</span>
+                        <span id="age-${i}" style="color:var(--accent)">--</span>
+                    </div>
+                    <div class="star-container" id="stars-${i}"></div>
+                    <div class="meta-bottom">
+                        <span class="p-title" id="pname-${i}">--</span>
+                        <span class="p-gz" id="pgz-${i}">${zhi}</span>
+                    </div>
+                `;
+                grid.appendChild(div);
+            });
+        }
 
-            // 安置主星
-            if (i === ziweiPos) starBox.innerHTML += '<span class="star-m">紫微</span>';
-            if (i === (ziweiPos - 1 + 12) % 12) starBox.innerHTML += '<span class="star-m">天机</span>';
-            if (i === (ziweiPos - 3 + 12) % 12) starBox.innerHTML += '<span class="star-m">太阳</span>';
-            if (i === tianfuPos) starBox.innerHTML += '<span class="star-m">天府</span>';
-            if (i === (tianfuPos + 1) % 12) starBox.innerHTML += '<span class="star-m">太阴</span>';
+        function runUltimateAudit() {
+            const y = parseInt(document.getElementById('birthYear').value);
+            const m = parseInt(document.getElementById('birthMonth').value);
+            const d = parseInt(document.getElementById('birthDay').value);
+            const h = parseInt(document.getElementById('birthHour').value);
 
-            // 检查四化
-            const currentStars = starBox.innerText;
-            if (sihuaMap[stemIdx] && currentStars.includes(sihuaMap[stemIdx].star)) {
-                starBox.innerHTML += `<span class="sh sh-ji">${sihuaMap[stemIdx].type}</span>`;
-                container.style.boxShadow = "inset 0 0 15px rgba(255,0,0,0.3)";
-            } else {
-                container.style.boxShadow = "none";
-            }
-        });
+            // 1. 计算命宫位置 (寅起顺数月，生月起逆数时)
+            const mingIdx = (0 + (m - 1) - (h - 1) + 12) % 12;
 
-        // 更新中央枢纽
-        const yearStem = STEMS[stemIdx];
-        const yearZhi = DIZHI[(y - 4) % 12];
-        document.getElementById('bazi-info').innerHTML = `
-            <div class="bazi-col"><label>年柱</label><span>${yearStem}${yearZhi}</span></div>
-            <div class="bazi-col"><label>月分</label><span>${m}月</span></div>
-            <div class="bazi-col"><label>日数</label><span>${d}日</span></div>
-        `;
-        document.getElementById('bureau-info').innerText = ">> 系统判定：火五局 | 核心架构：杀破狼变格";
+            // 2. 五虎遁月算宫干
+            const yearStemIdx = (y - 4) % 10;
+            const startStemIdx = ((yearStemIdx % 5) * 2 + 2) % 10; 
 
-        // 更新日志与解析
-        document.getElementById('log-text').innerHTML = `
-            >> <b>[时空对齐成功]</b><br>
-            >> 定位命宫：${DIZHI[mingIdx]}宫<br>
-            >> 发现异常：${yearStem}年干触发逻辑冲突。<br>
-            >> 冲突节点：<b>${sihuaMap[stemIdx]?.star || '无'}化忌</b> 映射至系统官禄层。
-        `;
+            // 3. 解析与动画更新
+            document.getElementById('debug-log').innerHTML += `> 正在对齐星图坐标...<br>> 定位命宫：${DIZHI[mingIdx]}宫<br>`;
+            
+            DIZHI.forEach((zhi, i) => {
+                const pIdx = (mingIdx - i + 12) % 12;
+                const stemIdx = (startStemIdx + i) % 10;
+                
+                document.getElementById(`pname-${i}`).innerText = PALACES[pIdx];
+                document.getElementById(`pgz-${i}`).innerText = TIAN_GAN[stemIdx] + zhi;
+                document.getElementById(`age-${i}`).innerText = `${6+i*10}-${15+i*10}`;
+                
+                const starBox = document.getElementById(`stars-${i}`);
+                starBox.innerHTML = "";
+                
+                // 模拟专业排盘的主星分布感
+                if(i === (y % 12)) {
+                    starBox.innerHTML += `<div class="major-star">紫微<span class="sihua-badge lu">禄</span></div>`;
+                    starBox.innerHTML += `<div class="minor-star">文昌</div>`;
+                }
+                if(i === ((y+2) % 12)) {
+                    starBox.innerHTML += `<div class="major-star" style="color:#ff5555">天机<span class="sihua-badge ji">忌</span></div>`;
+                    starBox.innerHTML += `<div class="minor-star">火星</div>`;
+                }
+                if(i === mingIdx) {
+                    starBox.innerHTML += `<div class="major-star">太阳</div><div class="major-star">太阴</div>`;
+                    document.getElementById(`palace-${i}`).style.boxShadow = "inset 0 0 20px rgba(0,243,255,0.2)";
+                }
+            });
 
-        const advices = {
-            2: "<b>[架构审计建议]：</b> 丙年天机化忌。天机主逻辑与算法，化忌意味着由于过度设计导致的死锁。建议停止一切非必要的递归重构。",
-            6: "<b>[架构审计建议]：</b> 庚年太阳化忌。太阳主声名与前端，化忌暗示界面交付物可能存在由于不兼容导致的崩溃风险。"
-        };
-        document.getElementById('advice-text').innerHTML = advices[stemIdx] || "当前时空节点磁场平稳。建议：进行日常业务维护，此时执行 CRUD 操作成功率高达 99.8%。";
-    }
-</script>
+            // 4. 大白话解析
+            updateSimpleAnalysis(yearStemIdx);
+            
+            // 5. 更新中心枢纽
+            document.getElementById('core-bazi').innerText = TIAN_GAN[yearStemIdx] + DIZHI[(y-4)%12] + " 命造";
+            document.getElementById('core-element').innerText = "VULNERABILITY: LOW | ARCH: CLOUD-NATIVE";
+        }
+
+        function updateSimpleAnalysis(stemIdx) {
+            const logs = [
+                "<b>[架构现状]</b>：当前处于‘甲木’扩张期。代码产出极高，但要注意逻辑耦合，容易在‘官禄宫’产生冗余代码。",
+                "<b>[架构现状]</b>：‘乙木’柔韧期。虽然面临频繁的需求变更，但你的系统具有极高的容错性。",
+                "<b>[架构现状]</b>：‘丙火’爆发期。警告：近期由于‘天机化忌’，你的核心算法可能出现非预期死锁，建议加强单元测试。"
+            ];
+            document.getElementById('simple-analysis').innerHTML = logs[stemIdx % 3];
+            
+            document.getElementById('tech-luck').innerHTML = `
+                <div class="audit-line"><span class="tag">稳定性</span> <span style="color:#44ff44">CRITICAL SAFE</span></div>
+                <div class="audit-line"><span class="tag">迭代力</span> <span style="color:var(--gold)">HIGH PERFORMANCE</span></div>
+                <div class="audit-line"><span class="tag">财富流</span> <span style="color:var(--accent)">CACHE HITTING...</span></div>
+            `;
+        }
+    </script>
 </body>
 </html>
