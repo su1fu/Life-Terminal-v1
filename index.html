@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Terminal v1.0</title>
+    <style>
+        body { background: #000; color: #00FF41; font-family: 'Courier New', monospace; margin: 0; padding: 20px; overflow: hidden; }
+        #terminal { border: 1px solid #0D5330; height: 90vh; padding: 15px; overflow-y: auto; box-shadow: 0 0 20px rgba(0, 255, 65, 0.2); }
+        .line { margin-bottom: 8px; opacity: 0; animation: fadeIn 0.3s forwards; }
+        .warning { color: #FFB100; font-weight: bold; border: 1px dashed #FFB100; padding: 10px; margin-top: 20px; }
+        .cursor { display: inline-block; width: 10px; height: 18px; background: #00FF41; animation: blink 1s infinite; vertical-align: middle; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    </style>
+</head>
+<body>
+    <div id="terminal">
+        <div id="output"></div>
+        <span class="cursor"></span>
+    </div>
+
+    <script>
+        const logs = [
+            "[SYSTEM] INITIALIZING LIFE_TERMINAL_V1...",
+            "[AUTH] USER_ID: ALX-9527 VERIFIED.",
+            "[SCAN] FETCHING ASTRO_DATA FROM CORE_ENGINE...",
+            "[WARN] TIAN_JI_HUA_JI DETECTED IN CAREER_PALACE.",
+            "[RISK] SCORE: 52.0 | LEVEL: L3_ORANGE",
+            "----------------------------------------",
+            "[ADVICE] > STOP_REFACTORING",
+            "[ADVICE] > EXECUTE_UNIT_TEST",
+            "----------------------------------------",
+            "[STATUS] TERMINAL READY. STANDBY..."
+        ];
+
+        const output = document.getElementById('output');
+        let i = 0;
+
+        function typeLog() {
+            if (i < logs.length) {
+                const div = document.createElement('div');
+                div.className = 'line';
+                if (logs[i].includes('WARN') || logs[i].includes('RISK')) div.style.color = '#FFB100';
+                div.textContent = logs[i];
+                output.appendChild(div);
+                i++;
+                setTimeout(typeLog, 500);
+            }
+        }
+        typeLog();
+    </script>
+</body>
+</html>
