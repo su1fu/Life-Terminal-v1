@@ -2,24 +2,23 @@ import json
 import os
 
 def run_ziwu_audit():
-    # 模拟数据
+    # 你的核心专业解析数据
     results = {
-        "liunian_analysis": "<b>2026丙午年专业审计：</b><br>当前触发[天机化忌]预警。底层架构可能面临非预期重构，建议保持代码简洁。",
-        "dayun_analysis": "<b>大运趋势：</b><br>当前大运重心位于‘财帛-福德’线。今年是‘破局’之年，宜动不宜静。",
+        "liunian_analysis": "<b>2026丙午年专业审计：</b><br>天机化忌入流年官禄宫。由于天机主逻辑，化忌主阻滞，对于开发者而言，这预示着底层架构可能遭遇非预期重构。建议：停止一切不必要的优化，优先保证系统稳定性。",
+        "dayun_analysis": "<b>十年大运审计：</b><br>当前正值破局之运，命宫磁场剧烈震荡。你的事业重心正从单纯的技术实现向跨领域架构迁移。虽有波折，但这也是重塑生命底层的契机。",
         "palace_data": ["紫微", "七杀", "天机化忌", "武曲"] 
     }
     
-    # 因为 main.py 在根目录，直接找同级下的 ui 文件夹
-    target_dir = 'ui'
-    if not os.path.exists(target_dir):
-        os.makedirs(target_dir)
-        
-    target_file = os.path.join(target_dir, 'data.json')
+    # 强制写入 ui 目录
+    target_path = os.path.join(os.getcwd(), 'ui', 'data.json')
     
-    with open(target_file, 'w', encoding='utf-8') as f:
+    # 如果目录不存在就建一个
+    os.makedirs(os.path.dirname(target_path), exist_ok=True)
+    
+    with open(target_path, 'w', encoding='utf-8') as f:
         json.dump(results, f, ensure_ascii=False, indent=4)
     
-    print(f">> [SUCCESS] 审计结果已写入 {target_file}")
+    print(f">> [CRITICAL SUCCESS] 数据已强制写入仓库路径: {target_path}")
 
 if __name__ == "__main__":
     run_ziwu_audit()
