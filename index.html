@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>TERMINAL 3.0 | 赛博紫微核心</title>
+    <title>TERMINAL 3.0 | 赛博紫微智算中心</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;900&display=swap');
         :root { --gold: #d4af37; --bg: #050505; --text: #e0e0e0; --alert: #ff4444; --cyan: #00f3ff; }
@@ -31,21 +31,28 @@
         .star.major { color: var(--gold); }
         .star.alert { color: var(--alert); text-shadow: 0 0 5px var(--alert); border: 1px solid var(--alert); padding: 2px; font-size: 12px; }
 
-        /* 中央引擎区 & 动画 */
-        .center-core { grid-area: 2 / 2 / 4 / 4; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px dashed rgba(212,175,55,0.3); position: relative; overflow: hidden; }
-        .core-ring { position: absolute; width: 80%; height: 80%; border: 2px solid transparent; border-top: 2px solid var(--gold); border-bottom: 2px solid var(--gold); border-radius: 50%; opacity: 0.1; transition: all 1s; }
-        .animating .core-ring { animation: rotateCore 2s linear infinite; opacity: 0.8; }
+        /* 中央引擎 SVG & 动画 */
+        .center-core { grid-area: 2 / 2 / 4 / 4; display: flex; align-items: center; justify-content: center; border: 1px dashed rgba(212,175,55,0.3); overflow: hidden; }
+        
+        #core-engine-svg { width: 80%; height: 80%; opacity: 0.1; transition: all 1s; }
+        #core-main-ring { transition: stroke 0.5s; }
+        #core-ming-text { transition: opacity 0.5s; }
+
+        .animating #core-engine-svg { opacity: 0.8; animation: rotateCore 2s linear infinite; }
         .animating .palace { animation: scanPulse 1.5s infinite alternate; }
         .highlighted { background: rgba(212,175,55,0.2) !important; border-color: var(--gold) !important; box-shadow: 0 0 15px rgba(212,175,55,0.5); transform: scale(1.02); z-index: 10; }
+        
+        .ji-alert { stroke: var(--alert); filter: drop-shadow(0 0 10px var(--alert)); }
+        .权-success { stroke: var(--cyan); filter: drop-shadow(0 0 10px var(--cyan)); }
 
         @keyframes rotateCore { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes scanPulse { 0% { border-color: rgba(212,175,55,0.2); } 100% { border-color: var(--cyan); box-shadow: inset 0 0 10px rgba(0,243,255,0.2); } }
 
-        /* 解析面板 */
+        /* 深度解析面板 */
         .analysis-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
         .card { border-top: 2px solid var(--gold); background: rgba(212,175,55,0.05); padding: 20px; font-size: 15px; line-height: 1.6; }
-        .card h3 { color: var(--gold); margin-top: 0; }
-        .log-text { font-family: monospace; color: var(--cyan); margin-bottom: 10px; display: block; }
+        .card h3 { color: var(--gold); margin-top: 0; font-weight: 900; letter-spacing: 2px; }
+        .log-text { font-family: monospace; color: var(--cyan); margin-bottom: 10px; display: block; border-bottom: 1px solid rgba(0,243,255,0.2); padding-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -80,18 +87,27 @@
 
         <div class="chart-container">
             <div class="ziwei-grid" id="grid">
+                <div class="center-core">
+                    <svg id="core-engine-svg" viewBox="0 0 100 100">
+                        <circle id="core-main-ring" cx="50" cy="50" r="45" fill="none" stroke="var(--gold)" stroke-width="0.5" stroke-dasharray="20,10"/>
+                        <circle cx="50" cy="50" r="30" fill="none" stroke="var(--cyan)" stroke-width="0.2" opacity="0.3"/>
+                        <circle cx="50" cy="50" r="15" fill="none" stroke="var(--gold)" stroke-width="0.2" opacity="0.1"/>
+                        <text x="50" y="52" id="core-ming-text" fill="var(--gold)" font-size="20" font-weight="900" text-anchor="middle" opacity="0">命</text>
+                        <path id="core-flow-lines" d="M 50,5 A 45,45 0 0,1 95,50" fill="none" stroke="var(--cyan)" stroke-width="0.1" stroke-dasharray="2,2"/>
+                    </svg>
                 </div>
+            </div>
         </div>
 
         <div class="analysis-panel">
             <div class="card">
                 <h3>系统运行日志</h3>
-                <span class="log-text" id="sys-log">等待输入生辰坐标...</span>
-                <div id="logic-text"></div>
+                <span class="log-text" id="sys-log">>> 等待生辰时空坐标...</span>
+                <div id="depth-report"></div>
             </div>
             <div class="card">
-                <h3>终端审计报告</h3>
-                <div id="advice-text">系统待机中。</div>
+                <h3>赛博生命建议 (Cyber Advice)</h3>
+                <div id="cyber-advice">终端系统待机中。</div>
             </div>
         </div>
     </div>
@@ -110,15 +126,14 @@
             document.getElementById('year').innerHTML = yHtml;
             document.getElementById('month').innerHTML = mHtml;
             document.getElementById('day').innerHTML = dHtml;
-            document.getElementById('year').value = "1996"; // 默认设为丙子年附近
+            document.getElementById('year').value = "2004"; // 默认测试年份
             
             renderEmptyGrid();
         };
 
-        // 渲染正统的 回字形 布局
+        // 渲染正统的 回字形 布局，地支子丑寅卯永不改变
         function renderEmptyGrid() {
             const grid = document.getElementById('grid');
-            grid.innerHTML = '<div class="center-core"><div class="core-ring"></div><div class="core-ring" style="width:60%;height:60%;animation-direction:reverse;border-color:var(--cyan)"></div><div style="color:var(--gold);letter-spacing:5px;z-index:2;text-align:center">CORE<br>ENGINE</div></div>';
             
             // 按照CSS Grid的位置映射12地支 (巳午未申在顶，辰酉在侧...)
             const layoutMap = {
@@ -135,7 +150,7 @@
                 div.style.gridArea = layoutMap[zhi];
                 div.innerHTML = `
                     <div class="stars" id="stars-${index}"></div>
-                    <span class="palace-name" id="pname-${index}">未排盘</span>
+                    <span class="palace-name" id="pname-${index}">未对齐</span>
                     <span class="palace-dz">${zhi}</span>
                 `;
                 grid.appendChild(div);
@@ -145,10 +160,14 @@
         function startAudit() {
             const grid = document.getElementById('grid');
             const log = document.getElementById('sys-log');
+            const depth = document.getElementById('depth-report');
+            const coreText = document.getElementById('core-ming-text');
             
-            // 1. 触发全盘扫描动画
+            // 1. 重置 UI 并触发扫描动画
             grid.classList.add('animating');
-            log.innerText = ">> 引擎启动... 正在扫描时空坐标...";
+            log.innerText = ">> 引擎启动... 正在探测时空坐标...";
+            depth.innerHTML = '';
+            coreText.setAttribute('opacity', '0'); // 隐藏旧命地支
             document.querySelectorAll('.palace').forEach(p => {
                 p.classList.remove('highlighted');
                 p.querySelector('.stars').innerHTML = ''; // 清空旧星星
@@ -161,44 +180,77 @@
             }, 1500);
         }
 
-        // 核心排盘逻辑引擎
+        // 核心排盘和审计逻辑引擎
         function computeDestiny() {
             const year = parseInt(document.getElementById('year').value);
             const month = parseInt(document.getElementById('month').value);
             const hour = parseInt(document.getElementById('hour').value);
 
             // 正统命宫推算法则：从寅宫(0)起正月，顺数至生月，逆数至生时
-            // (0 + month - 1 - (hour - 1) + 12) % 12
             const mingGongIndex = (0 + (month - 1) - (hour - 1) + 12) % 12;
 
             // 逆时针排12宫名
             for(let i=0; i<12; i++) {
-                // 当前格子距离命宫的偏移量
-                const offset = (mingGongIndex - i + 12) % 12; 
+                const offset = (mingGongIndex - i + 12) % 12; // 当前格子距离命宫的偏移量
                 document.getElementById(`pname-${i}`).innerText = PALACE_NAMES[offset];
             }
 
-            // 模拟专业审计结果（根据年份尾数判断天干，触发四化）
+            // 赛博深度审计信息（扩展四化联动）
             const yearLastDigit = year % 10;
             let targetPalaceIndex = (mingGongIndex + 8) % 12; // 默认冲击官禄宫 (命宫逆数8)
-            let alertText = "";
-            let advice = "";
+            let DepthReport = "";
+            let CyberAdvice = "";
+            const yearTianGan = ["庚", "辛", "壬", "癸", "甲", "乙", "丙", "丁", "戊", "己"][(year-4)%10];
 
-            if (yearLastDigit === 6) { // 丙年 (如1996, 2026)
+            // 1. 深度命理：分析命宫基本性格
+            const mZhi = DI_ZHI[mingGongIndex];
+            DepthReport += `<b>[深度解析] 赛博生命周期审计：</b><br>`;
+            DepthReport += `坐标定位完毕：${year}(${yearTianGan}${mZhi})年${month}月 ${hour}时。命宫落于 ${mZhi}宫。<br>`;
+            
+            const MingZhiLogic = {
+                "寅": "个性独立，逻辑极其严密。在处理并发逻辑作业时表现优异。要注意防止由于底层架构过度自我，导致不兼容外部对讲机协议。",
+                "辰": "外表文静但内心极具重构欲望。命理磁场偏向‘开源项目’型，容易陷入由于过度追求代码美感而忽略业务交付的Bug模式。",
+                "申": "思维跳跃，命带‘技术迁移’磁场。适合作为架构师在不同技术栈之间进行维度的对齐。要谨防由于思维切换过快导致内存泄露。"
+            };
+            DepthReport += MingZhiLogic[mZhi] || "个性中庸，命理磁场平稳，适合在稳定的业务模块中进行增删改查。";
+            DepthReport += `<br><br>`;
+
+            // 2. 核心预警：四化联动
+            const pName = document.getElementById(`pname-${targetPalaceIndex}`).innerText;
+            if (yearTianGan === "丙") { // 如1996, 2026
+                DepthReport += `<span style="color:var(--alert)">>> [高危预警] 探测到【天机化忌】直冲 ${DI_ZHI[targetPalaceIndex]}宫(${pName})</span><br>`;
+                
+                CyberAdvice = "<b>专家级赛博建议 (Cyber Advice)：</b> 丙午年天机化忌。作为开发者，你命盘的‘逻辑层’磁场崩坏。这意味着在进行核心架构重构时，天机星的失算将导致由于过度优化而导致的死锁或内存泄露。<b>强烈建议：</b> 全面转入 Bug 修复与防御性编程模式，不要点击项目重构按钮。";
+                
+                // 3. 寻找对冲：如化权入田宅，建议寻找稳定分支
+                DepthReport += `同时探测到【化权】能量汇聚于 田宅宫。这是由于底层Bug触发了数据层的权限变更对冲。<br>`;
+                
                 document.getElementById(`stars-${targetPalaceIndex}`).innerHTML = '<span class="star major">天机</span><span class="star alert">化忌</span>';
-                alertText = `[高危] 探测到【天机化忌】直冲 ${DI_ZHI[targetPalaceIndex]}宫(${document.getElementById(`pname-${targetPalaceIndex}`).innerText})`;
-                advice = "<b>专家级预警：</b> 丙年磁场触发天机星逻辑阻滞。作为开发者，你本命盘的逻辑层正遭遇干扰。<b>强烈建议：</b> 停止核心代码重构，全面转入 Bug 修复与防御性编程模式。";
-            } else {
-                document.getElementById(`stars-${targetPalaceIndex}`).innerHTML = '<span class="star major">武曲</span><span class="star alert">化权</span>';
-                alertText = `[洞察] 探测到【化权】能量汇聚于 ${DI_ZHI[targetPalaceIndex]}宫(${document.getElementById(`pname-${targetPalaceIndex}`).innerText})`;
-                advice = "<b>执行力暴增：</b> 当前时空节点有利于攻克技术难关，底层架构稳定，建议快速推进核心模块的开发。";
+                document.getElementById(`stars-${(mingGongIndex+9)%12}`).innerHTML = '<span class="star alert" style="color:var(--cyan);border-color:var(--cyan)">化权</span>';
+                
+                // SVG 反馈
+                document.getElementById('core-main-ring').className.baseVal = "ji-alert";
+                document.getElementById('core-engine-svg').style.animationDirection = "normal";
+
+            } else if (yearTianGan === "庚") { // 如2000, 2030
+                DepthReport += `<span style="color:var(--cyan)">>> [洞察] 探测到【武曲化权】汇聚于 ${DI_ZHI[targetPalaceIndex]}宫(${pName})</span><br>`;
+                
+                CyberAdvice = "<b>专家级赛博建议 (Cyber Advice)：</b> 庚年武曲化权。检测到命主在技术实现上的能量极其强大且精准。磁场有利于攻克高并发逻辑难关。底层架构稳定，建议快速推进核心模块的开发。甚至可以尝试由于过度自我（化权）而导致的不兼容重构作业。";
+                
+                document.getElementById(`stars-${targetPalaceIndex}`).innerHTML = '<span class="star major">武曲</span><span class="star alert" style="color:var(--cyan);border-color:var(--cyan)">化权</span>';
+                
+                // SVG 反馈
+                document.getElementById('core-main-ring').className.baseVal = "权-success";
+                document.getElementById('core-engine-svg').style.animationDirection = "reverse";
             }
 
-            // UI 反馈
+            // 视觉反馈
             document.getElementById(`palace-${targetPalaceIndex}`).classList.add('highlighted');
-            document.getElementById('sys-log').innerText = `>> 坐标定位完毕：${year}年 ${month}月 ${hour}时\n>> 命宫落于：${DI_ZHI[mingGongIndex]}宫`;
-            document.getElementById('logic-text').innerHTML = `<br><span style="color:var(--alert)">${alertText}</span>`;
-            document.getElementById('advice-text').innerHTML = advice;
+            document.getElementById(`core-ming-text`).innerHTML = mZhi;
+            document.getElementById(`core-ming-text`).setAttribute('opacity', '1');
+            document.getElementById('sys-log').innerText = `>> 审计完毕：命格对齐成功。`;
+            document.getElementById('depth-report').innerHTML = DepthReport;
+            document.getElementById('cyber-advice').innerHTML = CyberAdvice || "庚年命理磁场有利于执行大规模的 CRUD 作业。无需进行过度的防御性建议对讲。";
         }
     </script>
 </body>
