@@ -3,85 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>生命终端 Life-Terminal</title>
+    <title>LIFE TERMINAL v3.0 | 终编</title>
     <style>
-        :root { --main-green: #00FF41; --warning-gold: #FFB100; --danger-red: #FF3131; }
-        body { background: #000; color: var(--main-green); font-family: 'PingFang SC', 'Microsoft YaHei', monospace; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-        
-        /* 十二宫格布局 */
-        .chart-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); gap: 2px; background: #0D5330; flex-grow: 1; padding: 5px; }
-        .palace { background: #000; border: 1px solid #0D5330; padding: 10px; position: relative; display: flex; flex-direction: column; justify-content: space-between; }
-        .center-hub { grid-area: 2 / 2 / 4 / 4; background: #000; border: 2px solid var(--main-green); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: inset 0 0 15px var(--main-green); }
-        
-        .palace-name { font-size: 12px; color: var(--main-green); opacity: 0.7; }
-        .star { font-size: 16px; font-weight: bold; writing-mode: vertical-rl; }
-        .hua-ji { color: var(--danger-red); font-size: 10px; border: 1px solid var(--danger-red); padding: 1px; margin-top: 5px; }
-        
-        /* 交互日志区 */
-        #console { height: 30%; background: #000; border-top: 2px solid var(--main-green); padding: 15px; overflow-y: auto; font-size: 14px; line-height: 1.6; }
-        .scan-line { color: var(--main-green); margin-bottom: 5px; }
-        .interpretation { color: var(--warning-gold); margin: 10px 0; border-left: 3px solid var(--warning-gold); padding-left: 10px; }
-        .cursor { display: inline-block; width: 8px; height: 15px; background: var(--main-green); animation: blink 1s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-    </style>
-</head>
-<body>
+        /* 引入具有高级感的衬线字体逻辑 */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;700&display=swap');
 
-<div class="chart-grid">
-    <div class="palace"><span class="palace-name">巳 - 父母</span><span class="star">天同</span></div>
-    <div class="palace"><span class="palace-name">午 - 福德</span><span class="star">武曲</span></div>
-    <div class="palace"><span class="palace-name">未 - 田宅</span><span class="star">太阳</span></div>
-    <div class="palace"><span class="palace-name">申 - 官禄</span><span class="star" style="color:var(--danger-red)">天机<div class="hua-ji">化忌</div></span></div>
-    
-    <div class="palace"><span class="palace-name">辰 - 命宫</span><span class="star">紫微 七杀</span></div>
-    <div class="center-hub">
-        <h2 style="margin:0; letter-spacing: 5px;">生命终端</h2>
-        <div style="font-size: 12px; margin: 10px 0;">[ 2026 丙午流年 实时监测 ]</div>
-        <div id="risk-display" style="font-size: 24px; color: var(--warning-gold);">风险系数: 52%</div>
-    </div>
-    <div class="palace"><span class="palace-name">酉 - 奴仆</span><span class="star">破军</span></div>
-    
-    <div class="palace"><span class="palace-name">卯 - 兄弟</span><span class="star">天机</span></div>
-    <div class="palace"><span class="palace-name">戌 - 迁移</span><span class="star">廉贞</span></div>
-    
-    <div class="palace"><span class="palace-name">寅 - 夫妻</span><span class="star">破军</span></div>
-    <div class="palace"><span class="palace-name">丑 - 子女</span><span class="star">天府</span></div>
-    <div class="palace"><span class="palace-name">子 - 财帛</span><span class="star">贪狼</span></div>
-    <div class="palace"><span class="palace-name">亥 - 疾厄</span><span class="star">太阴</span></div>
-</div>
-
-<div id="console">
-    <div id="logs"></div>
-    <span class="cursor"></span>
-</div>
-
-<script>
-    const steps = [
-        { t: "[系统] 正在接入生命磁场...", c: "scan" },
-        { t: "[同步] 正在读取 2026 丙午年 四化变动：天同化禄、天机化忌...", c: "scan" },
-        { t: ">> 发现异常：[官禄宫] 触发天机化忌冲击。", c: "warn" },
-        { t: "【专业解析】", c: "title" },
-        { t: "天机主逻辑与计划。化忌入官禄，意味着你当前的业务底层逻辑面临重构。强行推进会导致代码或决策陷入死循环。", c: "interpretation" },
-        { t: ">> 建议操作：暂停所有非必要重构，执行系统防御性测试。", c: "interpretation" },
-        { t: "[状态] 终端待命。保持警惕。", c: "scan" }
-    ];
-
-    const logBox = document.getElementById('logs');
-    let idx = 0;
-
-    function renderNext() {
-        if (idx < steps.length) {
-            const div = document.createElement('div');
-            div.className = steps[idx].c === 'interpretation' ? 'interpretation' : 'scan-line';
-            div.textContent = steps[idx].t;
-            logBox.appendChild(div);
-            idx++;
-            document.getElementById('console').scrollTop = document.getElementById('console').scrollHeight;
-            setTimeout(renderNext, 800);
+        :root {
+            --neon-green: #00ff41;
+            --soft-glow: rgba(0, 255, 65, 0.4);
+            --dark-bg: #050505;
+            --panel-bg: rgba(255, 255, 255, 0.02);
+            --warning-red: #ff3131;
         }
-    }
-    renderNext();
-</script>
 
-</body>
-</html>
+        body {
+            background-color: var(--dark-bg);
+            color: var(--neon-green);
+            /* 使用 Noto Serif SC 营造古籍刻本的高级感 */
+            font-family: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            letter-spacing: 1px;
+        }
+
+        /* 氛围感蒙层：噪点与扫描线 */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px);
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 15px;
+            padding: 30px;
+            height: 75vh;
+        }
+
+        .palace {
+            background: var(--panel-bg);
+            border: 0.5px solid rgba(0, 255, 65, 0.3);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .palace:hover {
+            background: rgba(0, 255, 65, 0.08);
+            border-color: var(--neon-green);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+        }
+
+        .palace-header {
