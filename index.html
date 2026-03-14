@@ -51,37 +51,47 @@
         </div>
     </div>
 
-    <script>
-        async function init() {
-            try {
-                // 解决 404 的关键：增加版本号防止缓存，并尝试当前目录
-                const res = await fetch(`data.json?v=${new Date().getTime()}`);
-                if (!res.ok) throw new Error("404");
-                const data = await res.json();
-                
-                // 填充八字与解析
-                document.getElementById('bazi-info').innerText = `【八字命局】${data.user_info.bazi} | 纳音：${data.user_info.element}`;
-                document.getElementById('liunian-text').innerHTML = data.liunian_analysis;
-                document.getElementById('dayun-text').innerHTML = data.dayun_analysis;
-                
-                // 动态生成宫位
-                const chart = document.getElementById('star-chart');
-                data.palace_data.forEach(p => {
-                    const box = document.createElement('div');
-                    box.className = 'palace';
-                    box.innerHTML = `
-                        <div class="star-main">${p.stars[0]}${p.stars[1] ? `<span class="star-alert">${p.stars[1]}</span>` : ''}</div>
-                        <div class="palace-name">${p.name} (${p.location})</div>
-                    `;
-                    chart.appendChild(box);
-                });
-
-                document.getElementById('loader').style.display = 'none';
-            } catch (e) {
-                document.getElementById('loader').innerText = ">> 链路未接通：请确保 Actions 已生成数据文件";
+   <script>
+    async function syncSystem() {
+        const loader = document.getElementById('loader');
+        
+        // 核心修正：显式指定读取同级目录下的 data.json
+        // 加入时间戳防止 GitHub Pages 缓存旧的 404 页面
+        const targetPath = `./data.json?v=${new Date().getTime()}`;
+        
+        try {
+            console.log(">> 正在尝试打通链路:", targetPath);
+            const response = await fetch(targetPath);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
+            
+            const data = await response.json();
+            
+            // 填充八字与解析数据
+            if(document.getElementById('bazi-display')) {
+                document.getElementById('bazi-display').innerText = `【八字原型】${data.user_info.bazi} | 命格：${data.user_info.element}`;
+            }
+            document.getElementById('liunian-text').innerHTML = data.liunian_analysis;
+            document.getElementById('dayun-text').innerHTML = data.dayun_analysis;
+            
+            // 渲染星盘
+            if (typeof renderChart === "function") {
+                renderChart(data.palace_data);
+            }
+            
+            // 成功接通，移除加载遮罩
+            loader.style.opacity = "0";
+            setTimeout(() => loader.style.display = "none", 500);
+            console.log(">> 链路接通成功！");
+
+        } catch (err) {
+            console.error(">> 链路接通失败:", err);
+            loader.innerHTML = `>> 链路故障：请确保访问地址包含 /ui/ 且目录下存在 data.json<br><small>${err.message}</small>`;
         }
-        window.onload = init;
-    </script>
+    }
+    window.onload = syncSystem;
+</script>
 </body>
 </html>
