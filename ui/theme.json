@@ -1,0 +1,13 @@
+{
+  "colors": {
+    "background": "#000000",
+    "text_primary": "#00FF41",
+    "text_secondary": "#0D5330",
+    "warning": "#FFB100",
+    "critical": "#FF3131",
+    "accent": "#008F11"
+  },
+  "fonts": {
+    "main": "Courier New, monospace"
+  }
+}
