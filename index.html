@@ -2,158 +2,92 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LIFE TERMINAL PRO | 紫微智算核心</title>
+    <title>TERMINAL | 紫微智算核心</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;900&display=swap');
+        :root { --gold: #d4af37; --bg: #050505; --text: #e0e0e0; }
+        body { background: var(--bg); color: var(--text); font-family: 'Noto Serif SC', serif; margin: 0; display: flex; justify-content: center; overflow-x: hidden; }
+        .terminal { width: 95%; max-width: 1000px; padding: 40px 0; }
         
-        :root {
-            --gold: #d4af37;
-            --white: #e6e6e6;
-            --bg: #0d0d0d;
-            --danger: #af3a3a;
-            --glass: rgba(255, 255, 255, 0.03);
-        }
+        /* 高级感头部 */
+        header { border-bottom: 1px solid var(--gold); padding-bottom: 20px; margin-bottom: 40px; text-align: center; }
+        header h1 { letter-spacing: 15px; color: var(--gold); font-size: 32px; margin: 0; }
+        .bazi-info { font-size: 14px; color: var(--gold); margin-top: 15px; opacity: 0.8; }
 
-        * { box-sizing: border-box; }
-        body { 
-            background: var(--bg); 
-            color: var(--white); 
-            font-family: 'Noto Serif SC', serif; 
-            margin: 0; 
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
+        /* 动态星盘 Grid */
+        .ziwei-chart { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; aspect-ratio: 1/1; margin-bottom: 40px; }
+        .palace { border: 0.5px solid rgba(212,175,55,0.3); background: rgba(255,255,255,0.02); padding: 15px; position: relative; min-height: 120px; }
+        .palace-name { position: absolute; bottom: 8px; right: 8px; font-size: 12px; color: var(--gold); }
+        .star-box { writing-mode: vertical-rl; font-size: 18px; letter-spacing: 5px; }
+        .star-main { color: var(--gold); font-weight: 900; }
+        .star-ji { color: #ff4444; border: 1px solid #ff4444; font-size: 12px; margin-top: 5px; padding: 2px; }
 
-        /* 氛围装饰 */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, rgba(212,175,55,0.05) 0%, transparent 80%);
-            pointer-events: none;
-        }
-
-        .container { width: 100%; max-width: 900px; z-index: 10; }
-
-        header { text-align: center; margin-bottom: 40px; border-bottom: 0.5px solid var(--gold); padding-bottom: 20px; }
-        header h1 { font-size: 28px; letter-spacing: 10px; color: var(--gold); margin: 0; font-weight: 200; }
-        .status-bar { font-size: 10px; letter-spacing: 2px; opacity: 0.5; margin-top: 10px; text-transform: uppercase; }
-
-        /* 专业星盘区 */
-        .chart-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: repeat(4, 1fr);
-            gap: 8px;
-            margin-bottom: 30px;
-            aspect-ratio: 1 / 1;
-        }
-
-        .cell {
-            border: 0.5px solid rgba(212,175,55,0.2);
-            background: var(--glass);
-            padding: 10px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .cell.center {
-            grid-area: 2 / 2 / 4 / 4;
-            border: 1px double var(--gold);
-            background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-
-        .palace-name { position: absolute; bottom: 5px; right: 5px; font-size: 10px; color: var(--gold); opacity: 0.6; }
-        .stars { writing-mode: vertical-rl; font-size: 16px; letter-spacing: 3px; height: 70%; }
-        .star-main { color: var(--gold); font-weight: 600; }
-
-        /* 解析卡片 */
-        .analysis-section { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .card { 
-            background: var(--glass); 
-            border-left: 3px solid var(--gold); 
-            padding: 20px;
-            backdrop-filter: blur(5px);
-        }
-        .card h3 { color: var(--gold); font-size: 16px; margin: 0 0 15px 0; font-weight: 400; border-bottom: 0.5px solid rgba(212,175,55,0.2); padding-bottom: 8px; }
-        .card p { font-size: 14px; line-height: 1.8; opacity: 0.9; margin: 0; }
-
-        .loading-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg); display: flex; align-items: center; justify-content: center;
-            z-index: 100; transition: 0.5s;
-        }
-
-        @media (max-width: 600px) {
-            .analysis-section { grid-template-columns: 1fr; }
-            header h1 { font-size: 20px; letter-spacing: 5px; }
-        }
+        /* 解析区 */
+        .analysis { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .card { border-left: 3px solid var(--gold); background: rgba(212,175,55,0.05); padding: 25px; }
+        .card h3 { color: var(--gold); margin-top: 0; font-weight: 900; }
+        
+        .loading { position: fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index:100; display:flex; align-items:center; justify-content:center; letter-spacing:5px; color:var(--gold); }
     </style>
 </head>
 <body>
+    <div id="loader" class="loading">CONNECTING TO CORE ENGINE...</div>
+    <div class="terminal">
+        <header>
+            <h1>生命終端 · 智算</h1>
+            <div id="bazi-display" class="bazi-info">正在同步八字命盘...</div>
+        </header>
 
-<div id="loader" class="loading-overlay">>> 同步 Python 审计核心...</div>
+        <div class="ziwei-chart" id="chart-grid">
+            </div>
 
-<div class="container">
-    <header>
-        <h1>生命終端 · 智算</h1>
-        <div class="status-bar">Life Terminal v1.0.4 | Data-Driven Astrology</div>
-    </header>
-
-    <div class="chart-grid" id="main-chart">
-        </div>
-
-    <div class="analysis-section">
-        <div class="card">
-            <h3>流年核算 [2026 丙午]</h3>
-            <p id="liunian-text">正在从内核调取解析...</p>
-        </div>
-        <div class="card">
-            <h3>大运审计报告</h3>
-            <p id="dayun-text">正在计算磁场周期...</p>
+        <div class="analysis">
+            <div class="card">
+                <h3>2026 丙午审计</h3>
+                <p id="liunian-text"></p>
+            </div>
+            <div class="card">
+                <h3>大运周期核算</h3>
+                <p id="dayun-text"></p>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    async function forceSync() {
-        const loader = document.getElementById('loader');
-        // 增加时间戳，防止浏览器缓存旧的“错误页面”
-        const ts = new Date().getTime();
-        const possiblePaths = [`data.json?v=${ts}`, `./data.json?v=${ts}`, `../ui/data.json?v=${ts}`];
-
-        for (let path of possiblePaths) {
+    <script>
+        async function sync() {
             try {
-                console.log(">> 正在尝试探测链路:", path);
-                const res = await fetch(path);
-                if (res.ok) {
-                    const data = await res.json();
-                    document.getElementById('liunian-text').innerHTML = data.liunian_analysis;
-                    document.getElementById('dayun-text').innerHTML = data.dayun_analysis;
-                    if (window.renderChart) renderChart(data.palace_data);
-                    
-                    loader.style.display = 'none';
-                    console.log(">> 链路接通成功！路径:", path);
-                    return;
-                }
+                // 解决 404 的关键：直接读取同目录下的 data.json
+                const res = await fetch('data.json'); 
+                const data = await res.json();
+                
+                document.getElementById('bazi-display').innerText = `【八字原型】${data.user_info.bazi} | 命格：${data.user_info.element}`;
+                document.getElementById('liunian-text').innerHTML = data.liunian_analysis;
+                document.getElementById('dayun-text').innerHTML = data.dayun_analysis;
+                
+                renderChart(data.palace_data);
+                document.getElementById('loader').style.display = 'none';
             } catch (e) {
-                console.warn(">> 探测路径失败:", path);
+                document.getElementById('loader').innerText = "链路故障：请先运行 Actions 同步数据";
             }
         }
-        loader.innerHTML = ">> 警告：云端数据尚未同步，请确保 Actions 已运行成功并等待 30 秒后手动刷新页面。";
-    }
-    window.onload = forceSync;
-</script>
 
+        function renderChart(palaces) {
+            const grid = document.getElementById('chart-grid');
+            // 这里可以写更复杂的 12 宫位映射逻辑
+            palaces.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'palace';
+                div.innerHTML = `
+                    <div class="star-box">
+                        <span class="star-main">${p.stars[0]}</span>
+                        ${p.stars[1] ? `<span class="star-ji">${p.stars[1]}</span>` : ''}
+                    </div>
+                    <span class="palace-name">${p.name}</span>
+                `;
+                grid.appendChild(div);
+            });
+        }
+        window.onload = sync;
+    </script>
 </body>
 </html>
