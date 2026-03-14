@@ -12,21 +12,16 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
-
-      - name: 设置 Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-
-      - name: 运行审计脚本
-        run: python main.py  # 这里改成了根目录下的 main.py
-
-      - name: 推送审计结果
+      - name: 运行审计
+        run: python main.py
+      - name: 推送数据
         run: |
           git config --global user.name "su1fu-bot"
           git config --global user.email "bot@github.com"
           git add ui/data.json
-          git commit -m "chore: 同步审计数据 [skip ci]" || echo "无数据变更"
+          git commit -m "chore: push data [skip ci]" || echo "no change"
           git push origin main
