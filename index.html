@@ -52,46 +52,49 @@
     </div>
 
    <script>
-    async function syncSystem() {
+    async function syncTerminal() {
         const loader = document.getElementById('loader');
         
-        // 核心修正：显式指定读取同级目录下的 data.json
-        // 加入时间戳防止 GitHub Pages 缓存旧的 404 页面
-        const targetPath = `./data.json?v=${new Date().getTime()}`;
-        
-        try {
-            console.log(">> 正在尝试打通链路:", targetPath);
-            const response = await fetch(targetPath);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            
-            // 填充八字与解析数据
-            if(document.getElementById('bazi-display')) {
-                document.getElementById('bazi-display').innerText = `【八字原型】${data.user_info.bazi} | 命格：${data.user_info.element}`;
-            }
-            document.getElementById('liunian-text').innerHTML = data.liunian_analysis;
-            document.getElementById('dayun-text').innerHTML = data.dayun_analysis;
-            
-            // 渲染星盘
-            if (typeof renderChart === "function") {
-                renderChart(data.palace_data);
-            }
-            
-            // 成功接通，移除加载遮罩
-            loader.style.opacity = "0";
-            setTimeout(() => loader.style.display = "none", 500);
-            console.log(">> 链路接通成功！");
+        // 策略：尝试多种可能的相对路径，并附加时间戳绕过 GitHub CDN 缓存
+        const timestamp = new Date().getTime();
+        const routes = [
+            `./data.json?v=${timestamp}`, 
+            `data.json?v=${timestamp}`,
+            `/Life-Terminal-v1/ui/data.json?v=${timestamp}`
+        ];
 
-        } catch (err) {
-            console.error(">> 链路接通失败:", err);
-            loader.innerHTML = `>> 链路故障：请确保访问地址包含 /ui/ 且目录下存在 data.json<br><small>${err.message}</small>`;
+        for (let route of routes) {
+            try {
+                console.log(`>> 正在探测链路: ${route}`);
+                const response = await fetch(route);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // 渲染数据
+                    if(document.getElementById('bazi-info')) {
+                        document.getElementById('bazi-info').innerText = `【八字命局】${data.user_info.bazi} | 纳音：${data.user_info.element}`;
+                    }
+                    document.getElementById('liunian-text').innerHTML = data.liunian_analysis;
+                    document.getElementById('dayun-text').innerHTML = data.dayun_analysis;
+                    
+                    // 渲染星盘
+                    if (window.renderChart) renderChart(data.palace_data);
+
+                    // 链路接通，解除屏蔽
+                    loader.style.opacity = "0";
+                    setTimeout(() => loader.style.display = "none", 500);
+                    console.log(">> [SUCCESS] 核心链路已接通");
+                    return; 
+                }
+            } catch (e) {
+                console.warn(`>> 路径探测失败: ${route}`);
+            }
         }
+        
+        loader.innerHTML = ">> 链路硬故障：请检查 GitHub Pages 服务状态或尝试清除浏览器缓存。";
     }
-    window.onload = syncSystem;
+    window.onload = syncTerminal;
 </script>
 </body>
 </html>
