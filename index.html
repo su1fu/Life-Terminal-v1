@@ -77,47 +77,37 @@
             </div>
         </div>
     </div>
+<script>
+    // 页面加载完成后，自动调取 Python 的审计结果
+    window.onload = async function() {
+        console.log(">> 正在接通生命终端数据链路...");
+        
+        try {
+            // 1. 获取 Python 算好的 JSON 数据
+            const response = await fetch('data.json'); 
+            if (!response.ok) throw new Error('未找到数据文件');
+            const data = await response.json();
 
-    <script>
-        const palaces = ["巳","午","未","申","辰","中","中","酉","卯","寅","丑","子","亥"]; // 简略布局
-        const palaceNames = ["父母", "福德", "田宅", "官禄", "命宫", "", "", "奴仆", "兄弟", "夫妻", "子女", "财帛", "疾厄"];
+            // 2. 将 Python 的专业解析注入 UI 面板
+            document.getElementById('liunian-text').innerHTML = data.liunian_analysis;
+            document.getElementById('dayun-text').innerHTML = data.dayun_analysis;
+            
+            // 3. 动态渲染星盘：把 Python 算出的星曜排布到十二宫位
+            renderChart(data.palace_data); 
 
-        function renderSystem() {
-            const m = parseInt(document.getElementById('month').value);
-            const h = parseInt(document.getElementById('hour').value);
-            const d = parseInt(document.getElementById('day').value);
-
-            // 视觉唤醒
-            document.getElementById('chart-area').style.display = 'block';
-            document.getElementById('analysis-area').style.display = 'grid';
-
-            // 模拟排盘逻辑
-            const lifeIdx = (m - 1 - h + 12) % 12;
-            const grid = document.getElementById('grid');
-            grid.innerHTML = "";
-
-            for(let i=0; i<16; i++) {
-                const cell = document.createElement('div');
-                cell.className = "cell";
-                if(i==5||i==6||i==9||i==10) { 
-                    if(i==5) {
-                        cell.className = "cell center";
-                        cell.innerHTML = `<div><div style="font-size:40px; color:#d4af37">丙午</div><div style="opacity:0.5">2026 流年</div></div>`;
-                    } else { cell.style.display="none"; }
-                } else {
-                    const idx = i > 5 ? i-3 : i; // 简化宫位映射
-                    cell.innerHTML = `<span class="palace-name">${palaceNames[idx%12]}</span><div class="stars"><span class="star-main">紫微</span><br><span>七杀</span></div>`;
-                    if(palaceNames[idx%12] === "官禄") {
-                        cell.innerHTML += `<div class="star-bad" style="font-size:12px; border:1px solid; margin-top:5px; padding:2px;">天机化忌</div>`;
-                    }
-                }
-                grid.appendChild(cell);
-            }
-
-            // 专业深度解析
-            document.getElementById('dayun-text').innerHTML = `当前大运步入“破局”阶段。出生于农历${m}月${d}日，你的先天命格带有明显的震荡属性。本大运期间，迁移宫位波动剧烈，适合向外求财，忌守旧。`;
-            document.getElementById('liunian-text').innerHTML = `2026 丙午年触发<span style="color:#af3a3a; font-weight:bold;">天机化忌</span>直冲官禄宫。这对开发者是极大的考验。天机主逻辑，化忌为阻滞。今年你的所有项目计划都会面临至少三次以上的推倒重来。<b>建议：</b>不要迷恋完美架构，先保证核心逻辑跑通。`;
+            console.log(">> 核心审计数据同步成功。");
+        } catch (e) {
+            console.error(">> 数据读取失败，请检查 GitHub Actions 是否生成了 data.json");
+            document.getElementById('liunian-text').innerHTML = "<span style='color:red'>数据未就绪，请先运行 Actions 审计。</span>";
         }
-    </script>
+    };
+
+    // 渲染动态星盘的逻辑
+    function renderChart(palaceData) {
+        // 这里根据 data.json 里的宫位信息，把“紫微”、“天机”等填入格子里
+        // 我们之前设计的 HTML Grid 布局会在这里被填满
+        console.log(">> 正在绘制紫微命盘...");
+    }
+</script>
 </body>
 </html>
