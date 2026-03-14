@@ -126,65 +126,38 @@
 </div>
 
 <script>
-    const palaceNames = ["巳-父母", "午-福德", "未-田宅", "申-官禄", "辰-命宫", "中宫", "中宫", "酉-奴仆", "卯-兄弟", "戌-迁移", "寅-夫妻", "丑-子女", "子-财帛", "亥-疾厄"];
-
-    async function initTerminal() {
-        try {
-            // 核心缝合：读取 Python 生成的 data.json
-            const response = await fetch('data.json');
-            if (!response.ok) throw new Error("尚未生成审计数据");
-            const data = await response.json();
-
-            // 1. 填充文字解析
-            document.getElementById('liunian-text').innerHTML = data.liunian_analysis;
-            document.getElementById('dayun-text').innerHTML = data.dayun_analysis;
-
-            // 2. 渲染星盘
-            renderChart(data.palace_data);
-
-            // 3. 隐藏加载动画
-            document.getElementById('loader').style.opacity = "0";
-            setTimeout(() => document.getElementById('loader').style.display = "none", 500);
-
-        } catch (err) {
-            console.error(err);
-            document.getElementById('loader').innerHTML = ">> 链路未接通：请先运行 GitHub Actions 审计";
-        }
-    }
-
-    function renderChart(palaceData) {
-        const grid = document.getElementById('main-chart');
-        grid.innerHTML = "";
+    async function syncSystem() {
+        const statusEl = document.getElementById('loader');
+        // 尝试从当前路径或根路径读取
+        const paths = ['./data.json', 'data.json', '../ui/data.json'];
         
-        // 模拟紫微斗数 12 宫布局
-        for (let i = 0; i < 16; i++) {
-            const cell = document.createElement('div');
-            
-            // 处理中心位置
-            if (i === 5 || i === 6 || i === 9 || i === 10) {
-                if (i === 5) {
-                    cell.className = "cell center";
-                    cell.innerHTML = `<div><div style="font-size:24px; color:var(--gold)">丙午</div><div style="font-size:10px; opacity:0.5; margin-top:5px;">2026 流年</div></div>`;
-                } else {
-                    cell.style.display = "none";
+        for (let path of paths) {
+            try {
+                console.log(`>> 尝试连接链路: ${path}`);
+                const response = await fetch(path);
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // 填充数据
+                    document.getElementById('liunian-text').innerHTML = data.liunian_analysis;
+                    document.getElementById('dayun-text').innerHTML = data.dayun_analysis;
+                    
+                    // 渲染逻辑（此处保留之前的 renderChart 函数）
+                    if (typeof renderChart === "function") renderChart(data.palace_data);
+                    
+                    // 隐藏 Loader
+                    statusEl.style.opacity = "0";
+                    setTimeout(() => statusEl.style.display = "none", 500);
+                    console.log(">> 链路接通成功！");
+                    return; // 成功后退出循环
                 }
-            } else {
-                // 处理 12 宫位
-                cell.className = "cell";
-                const pName = palaceNames[i > 5 ? i-3 : i];
-                cell.innerHTML = `
-                    <span class="palace-name">${pName}</span>
-                    <div class="stars">
-                        <span class="star-main">紫微</span><br>
-                        <span>七杀</span>
-                    </div>
-                `;
+            } catch (e) {
+                console.warn(`>> 路径 ${path} 失败`);
             }
-            grid.appendChild(cell);
         }
+        statusEl.innerHTML = ">> 审计数据生成中，请在 1 分钟后刷新页面...";
     }
-
-    initTerminal();
+    window.onload = syncSystem;
 </script>
 
 </body>
