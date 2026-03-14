@@ -2,8 +2,11 @@ name: 生命终端每日审计
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 0 * * *'
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write  # 必须开启写入权限
 
 jobs:
   audit:
@@ -18,12 +21,12 @@ jobs:
           python-version: '3.10'
 
       - name: 运行审计脚本
-        run: python main.py
+        run: python core/main.py  # 确保路径指向你的 main.py
 
-      - name: 推送审计结果
+      - name: 强制推送到仓库
         run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
+          git config --global user.name "su1fu-bot"
+          git config --global user.email "bot@github.com"
           git add ui/data.json
-          git commit -m "自动更新审计数据: $(date)" || echo "无需更新"
-          git push
+          git commit -m "chore: 同步审计数据 [skip ci]" || echo "无数据变更"
+          git push origin main
