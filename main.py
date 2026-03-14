@@ -1,24 +1,26 @@
 import json
 import os
 
-def run_ziwu_audit():
-    # 你的核心专业解析数据
+def run_advanced_audit():
+    # 这里模拟更高级的紫微+八字逻辑
     results = {
-        "liunian_analysis": "<b>2026丙午年专业审计：</b><br>天机化忌入流年官禄宫。由于天机主逻辑，化忌主阻滞，对于开发者而言，这预示着底层架构可能遭遇非预期重构。建议：停止一切不必要的优化，优先保证系统稳定性。",
-        "dayun_analysis": "<b>十年大运审计：</b><br>当前正值破局之运，命宫磁场剧烈震荡。你的事业重心正从单纯的技术实现向跨领域架构迁移。虽有波折，但这也是重塑生命底层的契机。",
-        "palace_data": ["紫微", "七杀", "天机化忌", "武曲"] 
+        "user_info": {"bazi": "丙午 庚寅 辛亥 戊子", "element": "钗钏金"},
+        "liunian_analysis": "<b>2026 丙午流年：</b><br>流年干支‘丙午’与命局发生剧烈感应。天机化忌直入官禄，此乃‘变中求稳’之象。程序员切忌在此时进行底层架构的推倒重来。",
+        "dayun_analysis": "<b>十年大运审计：</b><br>当前正处于‘破军’大运，主开拓与损耗。磁场显示事业重心正在发生 180° 的维度偏移，建议在逻辑层保持冗余。",
+        "palace_data": [
+            {"name": "命宫", "stars": ["紫微", "七杀"], "location": "辰"},
+            {"name": "官禄", "stars": ["天机", "化忌"], "location": "申"},
+            {"name": "财帛", "stars": ["武曲", "天府"], "location": "子"}
+            # 更多宫位...
+        ]
     }
     
-    # 强制写入 ui 目录
-    target_path = os.path.join(os.getcwd(), 'ui', 'data.json')
-    
-    # 如果目录不存在就建一个
-    os.makedirs(os.path.dirname(target_path), exist_ok=True)
-    
-    with open(target_path, 'w', encoding='utf-8') as f:
+    # 确保路径精准指向 ui/data.json
+    ui_dir = os.path.join(os.getcwd(), 'ui')
+    os.makedirs(ui_dir, exist_ok=True)
+    with open(os.path.join(ui_dir, 'data.json'), 'w', encoding='utf-8') as f:
         json.dump(results, f, ensure_ascii=False, indent=4)
-    
-    print(f">> [CRITICAL SUCCESS] 数据已强制写入仓库路径: {target_path}")
+    print(">> [高级审计] 数据已就位：ui/data.json")
 
 if __name__ == "__main__":
-    run_ziwu_audit()
+    run_advanced_audit()
