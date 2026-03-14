@@ -1,0 +1,24 @@
+{
+  "metadata": {
+    "user_id": "ALX-9527",
+    "role": "Full_Stack_Developer",
+    "os_kernel": "Zi_Sha_Sector"
+  },
+  "birth_data": {
+    "lunar_year": 1990,
+    "lunar_month": 1,
+    "lunar_day": 15,
+    "lunar_hour_index": 0,
+    "gender": "M"
+  },
+  "current_context": {
+    "year": 2026,
+    "focus_sector": "Career",
+    "current_status": "STRESS_TESTING"
+  },
+  "system_variables": {
+    "is_hyper_focus_mode": true,
+    "tech_stack": ["Python", "React", "Rust"],
+    "resilience_buffer": 40
+  }
+}
