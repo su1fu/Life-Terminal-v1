@@ -2,197 +2,202 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>TERMINAL 11.0 | 紫微斗数 · 玄学深算</title>
+    <title>TERMINAL 1.0 | 紫微斗数智算終端</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;900&family=Zhi+Mang+Xing&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;900&family=Zhi+Mang+Xing&family=JetBrains+Mono:wght@100&display=swap');
 
         :root {
-            --gold: #b8975a; --gold-bright: #ffd700; --bg: #0a0a0a;
-            --border: #2a261f; --text: #c0c0c0; --ji: #7c0000; --lu: #1b4d2e;
+            --gold: #b8975a; --gold-br: #ffd700; --bg: #050505;
+            --border: #2a261f; --ji: #8b0000; --lu: #1b4d2e;
         }
 
-        body { 
-            background: var(--bg); color: var(--text); font-family: 'Noto Serif SC', serif; 
-            margin: 0; display: flex; flex-direction: column; align-items: center;
-        }
+        body { background: var(--bg); color: #ccc; font-family: 'Noto Serif SC', serif; margin: 0; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
 
-        /* 顶部输入交互区 */
-        .control-panel {
-            width: 100%; padding: 25px; background: #000; border-bottom: 2px solid var(--border);
-            display: flex; justify-content: center; gap: 20px; align-items: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.8);
+        /* 1. 仪式感：完整交互头 */
+        .header-panel {
+            width: 100%; padding: 20px; background: #000; border-bottom: 2px solid var(--border);
+            display: flex; justify-content: center; gap: 12px; align-items: center; z-index: 100;
         }
-        select, button {
-            background: #000; border: 1px solid var(--gold); color: var(--gold);
-            padding: 10px 20px; font-size: 14px; cursor: pointer; transition: 0.4s;
+        .header-panel select, .header-panel button {
+            background: transparent; border: 1px solid var(--gold); color: var(--gold);
+            padding: 8px 15px; font-size: 13px; cursor: pointer; transition: 0.3s; font-family: 'JetBrains Mono', 'Noto Serif SC';
         }
-        button:hover { background: var(--gold); color: #000; box-shadow: 0 0 15px var(--gold); }
+        .header-panel button:hover { background: var(--gold); color: #000; box-shadow: 0 0 20px var(--gold); }
 
-        /* 主布局 */
-        .main-container { display: grid; grid-template-columns: 820px 420px; gap: 40px; padding: 40px; }
+        /* 2. 布局与动画 */
+        .astrology-main { display: grid; grid-template-columns: 860px 420px; gap: 30px; padding: 30px; }
 
-        /* 12宫排盘 */
-        .astrology-grid {
-            display: grid; grid-template-columns: repeat(4, 200px); grid-template-rows: repeat(4, 200px);
+        .chart-grid {
+            display: grid; grid-template-columns: repeat(4, 210px); grid-template-rows: repeat(4, 210px);
             gap: 1px; background: var(--border); border: 2px solid var(--border);
+            opacity: 0; transform: scale(0.8) rotate(-5deg); transition: all 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .palace { background: var(--bg); position: relative; padding: 12px; transition: 0.3s; }
-        .palace:hover { background: #0f0f0f; box-shadow: inset 0 0 15px rgba(184,151,90,0.1); }
+        .chart-active { opacity: 1; transform: scale(1) rotate(0deg); }
+
+        .palace { background: var(--bg); position: relative; padding: 12px; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* 宫位细节 */
-        .p-name { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); font-weight: 900; color: var(--gold); font-size: 16px; letter-spacing: 4px; }
-        .p-age { position: absolute; top: 10px; left: 10px; font-size: 11px; color: #444; }
-        .p-gz { position: absolute; bottom: 12px; right: 10px; font-size: 13px; color: var(--gold); opacity: 0.4; }
+        /* 3. 像素级补完：宫位细节 */
+        .p-dx-gan { position: absolute; top: 8px; left: 8px; font-weight: 900; color: var(--gold-br); font-size: 14px; }
+        .p-age-range { position: absolute; top: 8px; right: 8px; font-size: 10px; color: #555; font-family: 'JetBrains Mono'; }
+        .p-shishen { position: absolute; bottom: 8px; left: 8px; font-size: 11px; color: #4a4a4a; border: 1px solid #222; padding: 0 2px; }
+        .p-gz-pos { position: absolute; bottom: 8px; right: 8px; font-size: 12px; color: var(--gold); opacity: 0.6; font-family: 'JetBrains Mono'; }
+        .p-title { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); font-weight: 900; color: var(--gold); letter-spacing: 3px; font-size: 16px; }
+
+        .star-box { display: flex; flex-direction: row-reverse; gap: 8px; height: 130px; margin-top: 15px; }
+        .main-star { writing-mode: vertical-rl; font-size: 21px; font-weight: 900; color: var(--gold-br); letter-spacing: 4px; text-shadow: 0 0 5px rgba(255,215,0,0.3); }
+        .sub-star { writing-mode: vertical-rl; font-size: 11px; color: #888; margin-top: 12px; }
+        .sihua { font-size: 10px; padding: 2px; color: #fff; margin-top: 5px; text-align: center; border-radius: 2px; }
+        .si-ji { background: var(--ji); } .si-lu { background: var(--lu); }
+
+        /* 4. 中宫硬核化：图 3 风格 */
+        .center-core {
+            grid-area: 2 / 2 / 4 / 4; background: #000; border: 1px solid var(--gold);
+            display: flex; flex-direction: column; padding: 20px; color: var(--gold); position: relative;
+        }
+        .core-header { border-bottom: 1px solid var(--gold); padding-bottom: 12px; text-align: center; }
+        .core-header h1 { font-family: 'Zhi Mang Xing'; margin: 0; font-size: 42px; letter-spacing: 5px; }
         
-        .stars-container { display: flex; flex-direction: row-reverse; justify-content: center; gap: 12px; margin-top: 20px; }
-        .star-main { writing-mode: vertical-rl; font-size: 22px; font-weight: 900; color: var(--gold-bright); letter-spacing: 5px; font-family: 'Noto Serif SC'; }
-        .star-sub { writing-mode: vertical-rl; font-size: 12px; color: #777; margin-top: 15px; }
+        .core-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; font-size: 13px; }
+        .info-item { border: 1px solid rgba(184,151,90,0.3); padding: 6px; text-align: center; background: rgba(184,151,90,0.05); }
+        .bazi-row { grid-column: span 2; display: flex; justify-content: space-around; background: var(--gold); color: #000; padding: 8px; font-weight: 900; margin-top: 10px; font-family: 'JetBrains Mono'; }
 
-        .sihua { font-size: 10px; padding: 2px 4px; border-radius: 2px; color: #fff; margin-top: 6px; display: block; text-align: center; font-weight: bold; }
-        .si-ji { background: var(--ji); box-shadow: 0 0 5px var(--ji); } 
-        .si-lu { background: var(--lu); box-shadow: 0 0 5px var(--lu); }
-
-        /* 中心玄图 */
-        .center-engine {
-            grid-area: 2 / 2 / 4 / 4; background: #000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            border: 1px solid var(--gold); position: relative; overflow: hidden;
-        }
-        .center-engine::before {
-            content: ""; position: absolute; width: 300px; height: 300px;
-            border: 1px dashed rgba(184,151,90,0.1); border-radius: 50%; animation: rotate 20s linear infinite;
-        }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .center-engine h1 { font-family: 'Zhi Mang Xing', cursive; font-size: 42px; color: var(--gold); z-index: 2; margin: 0; }
-
-        /* 解析面板 */
+        /* 5. 解析深度化 */
         .analysis-sidebar { display: flex; flex-direction: column; gap: 25px; }
-        .analysis-card {
-            border: 1px solid var(--border); padding: 25px; background: rgba(10,10,10,0.8);
-            position: relative;
-        }
-        .analysis-card::after { content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--gold); }
-        .analysis-card h3 { font-family: 'Zhi Mang Xing', cursive; font-size: 24px; color: var(--gold); margin-top: 0; }
-        .analysis-text { font-size: 15px; line-height: 2; color: #bbb; text-align: justify; }
-
-        .typing::after { content: ' █'; animation: blink 0.8s infinite; color: var(--gold); }
-        @keyframes blink { 50% { opacity: 0; } }
+        .audit-panel { background: rgba(10,10,10,0.9); border: 1px solid var(--border); padding: 25px; position: relative; min-height: 200px; }
+        .audit-panel::after { content: ""; position: absolute; left: 0; top: 0; width: 4px; height: 100%; background: var(--gold); }
+        .audit-panel h3 { font-family: 'Zhi Mang Xing'; font-size: 26px; color: var(--gold); margin: 0 0 20px 0; }
+        
+        .status-loading { font-family: 'JetBrains Mono'; font-size: 12px; color: #444; margin-bottom: 10px; display: none; }
+        .text-body { font-size: 15px; line-height: 2.2; color: #bbb; text-align: justify; }
     </style>
 </head>
 <body>
 
-<div class="control-panel">
-    <select id="year"><option value="1996">丙子 (1996)</option></select>
-    <select id="month"><option>六月</option></select>
-    <select id="day"><option>初十</option></select>
-    <select id="hour"><option>子时 (23:00-01:00)</option></select>
-    <button onclick="renderChart()">布阵排盘</button>
+<div class="header-panel">
+    <select id="gender"><option>乾造 (男)</option><option>坤造 (女)</option></select>
+    <select id="year"></select><select id="month"></select><select id="day"></select><select id="hour"></select>
+    <button onclick="initArray()">布陣排盤</button>
 </div>
 
-<div class="main-container">
-    <div class="astrology-grid" id="chartGrid">
-        <div class="center-engine">
-            <h1>命理終端</h1>
-            <p style="font-size:12px; color:var(--gold); letter-spacing:5px; margin-top:10px;">天垂象 · 乾坤定</p>
+<div class="astrology-main">
+    <div class="chart-grid" id="mainGrid">
+        <div class="center-core">
+            <div class="core-header">
+                <h1>命理終端</h1>
+                <span style="font-size:11px; letter-spacing:4px; opacity:0.6;">METAPHYSICS QUANTUM CORE</span>
+            </div>
+            <div class="core-info-grid">
+                <div class="info-item">命宮：<span id="c-ming">未宮</span></div>
+                <div class="info-item">身宮：<span id="c-shen">亥宮</span></div>
+                <div class="info-item">局數：<span id="c-ju">金四局</span></div>
+                <div class="info-item">生肖：<span id="c-sx">甲戌犬</span></div>
+                <div class="bazi-row" id="c-bazi">
+                    <span>甲戌</span><span>己巳</span><span>壬申</span><span>丙午</span>
+                </div>
+            </div>
+            <div style="margin-top:25px; font-size:11px; color:var(--gold-br); opacity:0.8; text-align:center;">
+                🕒 当前流年：2026 丙午 (天同化祿 / 廉貞化忌)
+            </div>
         </div>
     </div>
 
     <div class="analysis-sidebar">
-        <div class="analysis-card">
-            <h3>命盤全體解析</h3>
-            <div id="full-analysis" class="analysis-text">待金盤落定，方可推演乾坤...</div>
-            <button onclick="runAI('full')" style="margin-top:20px; width:100%;">啟動深度解析</button>
-        </div>
-        <div class="analysis-card">
-            <h3>流年大限詳析</h3>
-            <div id="decade-analysis" class="analysis-text">觀其運勢，察其變數。</div>
-            <button onclick="runAI('decade')" style="margin-top:20px; width:100%;">推演運向</button>
+        <div class="audit-panel">
+            <h3>命盤深度全析</h3>
+            <div id="loading-1" class="status-loading">> 初始化知識庫检索... [OK]<br>> 提取星曜坐標... [DONE]</div>
+            <div id="text-1" class="text-body">待金盤開陣，方可窺探天機。</div>
+            <button onclick="deepAudit('full')" style="margin-top:20px; width:100%; background:none; border:1px solid var(--gold); color:var(--gold); padding:10px; cursor:pointer;">執行乾坤審計</button>
         </div>
     </div>
 </div>
 
 <script>
-    // 1. 中式玄学知识库 (Chinese Metaphysics Knowledge Base)
-    const XUAN_KNOWLEDGE_BASE = {
-        stars: {
-            "紫微": "帝座星，主尊貴，具統合乾坤之能，唯恐孤君無臣。",
-            "天機": "謀略之星，主機靈變通，擅推演造化，亦主思慮過重。",
-            "武曲": "將星，主財帛執行，性剛果決，利於開疆拓土。",
-            "廉貞": "囚星，主次桃花，其性精明，易陷於情志糾葛。",
-            "七殺": "肅殺之星，主變動與權威，具破舊立新之勇。"
-        },
-        palaces: {
-            "命宫": "人之本命，福禍之根基",
-            "官禄宫": "功名事業，祿位之起伏",
-            "财帛宫": "金銀資糧，財源之進退"
-        },
-        si_hua: {
-            "忌": "主阻滯、沖煞、暗雲遮月。凡事宜守不宜進。",
-            "禄": "主生機、恩惠、春回大地。凡事多逢貴人助。"
-        }
-    };
+    // 1. 下拉框初始化
+    const yS = document.getElementById('year');
+    const mS = document.getElementById('month');
+    const dS = document.getElementById('day');
+    const hS = document.getElementById('hour');
+    for(let i=1970; i<=2030; i++) yS.options.add(new Option(`${i}年`, i));
+    const monArr = ["正","二","三","四","五","六","七","八","九","十","冬","臘"];
+    monArr.forEach((m, i) => mS.options.add(new Option(`${m}月`, i+1)));
+    for(let i=1; i<=30; i++) dS.options.add(new Option(`${i}日`, i));
+    const hArr = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+    hArr.forEach(h => hS.options.add(new Option(`${h}時`, h)));
 
-    const LAYOUT = ["4/1", "4/2", "4/3", "4/4", "3/4", "2/4", "1/4", "1/3", "1/2", "1/1", "2/1", "3/1"];
-    const PALACE_NAMES = ["命宮", "兄弟", "夫妻", "子女", "財帛", "疾厄", "遷移", "奴僕", "官祿", "田宅", "福德", "父母"];
+    // 2. 核心数据对象 (用于像素级补完)
+    const PALACE_DATA = [
+        { name: "命宮", gan: "丙", age: "4-13", main: ["廉貞","七殺"], sub: ["擎羊","天刑"], sihua: "忌", shen: "长生" },
+        { name: "兄弟", gan: "丁", age: "14-23", main: ["天梁"], sub: ["文昌","左輔"], sihua: "", shen: "沐浴" },
+        { name: "夫妻", gan: "戊", age: "24-33", main: ["紫微","天相"], sub: ["地空","地劫"], sihua: "", shen: "冠帶" },
+        { name: "子女", gan: "己", age: "34-43", main: ["天機","巨門"], sub: ["火星","天鉞"], sihua: "權", shen: "临官" },
+        { name: "財帛", gan: "庚", age: "44-53", main: ["貪狼"], sub: ["鈴星","陀羅"], sihua: "", shen: "帝旺" },
+        { name: "疾厄", gan: "辛", age: "54-63", main: ["太陽","太陰"], sub: ["天魁","右弼"], sihua: "祿", shen: "衰" },
+        { name: "遷移", gan: "壬", age: "64-73", main: ["武曲","天府"], sub: ["祿存","台輔"], sihua: "", shen: "病" },
+        { name: "奴僕", gan: "癸", age: "74-83", main: ["天同"], sub: ["文曲"], sihua: "", shen: "死" },
+        { name: "官祿", gan: "甲", age: "84-93", main: ["破軍"], sub: ["天馬"], sihua: "", shen: "墓" },
+        { name: "田宅", gan: "乙", age: "94-103", main: ["天同"], sub: ["天巫"], sihua: "", shen: "绝" },
+        { name: "福德", gan: "丙", age: "104-113", main: ["廉貞"], sub: ["紅鸞"], sihua: "", shen: "胎" },
+        { name: "父母", gan: "丁", age: "114-123", main: ["巨門"], sub: ["天哭"], sihua: "", shen: "养" }
+    ];
 
-    function renderChart() {
-        const grid = document.getElementById('chartGrid');
-        Array.from(grid.querySelectorAll('.palace')).forEach(el => el.remove());
+    const layout = ["4/1", "4/2", "4/3", "4/4", "3/4", "2/4", "1/4", "1/3", "1/2", "1/1", "2/1", "3/1"];
 
-        PALACE_NAMES.forEach((name, i) => {
-            const p = document.createElement('div');
-            p.className = 'palace';
-            p.style.gridArea = LAYOUT[i];
+    // 3. 仪式感排盘逻辑
+    function initArray() {
+        const grid = document.getElementById('mainGrid');
+        grid.classList.remove('chart-active');
+        
+        // 延迟重绘，确保动画效果
+        setTimeout(() => {
+            Array.from(grid.querySelectorAll('.palace')).forEach(e => e.remove());
+            
+            PALACE_DATA.forEach((d, i) => {
+                const p = document.createElement('div');
+                p.className = 'palace';
+                p.style.gridArea = layout[i];
+                
+                let sHTML = '';
+                d.main.forEach(s => {
+                    const sh = (d.sihua && s === d.main[0]) ? `<div class="sihua si-${d.sihua === '忌' ? 'ji' : 'lu'}">${d.sihua}</div>` : '';
+                    sHTML += `<div class="main-star">${s}${sh}</div>`;
+                });
+                d.sub.forEach(s => sHTML += `<div class="sub-star">${s}</div>`);
 
-            let starsHTML = '';
-            if(name === "命宮") {
-                starsHTML = `<div class="star-main">廉貞<span class="sihua si-ji">忌</span></div><div class="star-main">七殺</div><div class="star-sub">擎羊</div>`;
-            } else if(name === "官祿宮") {
-                starsHTML = `<div class="star-main">天機</div><div class="star-sub">文昌</div>`;
-            } else if(name === "財帛宮") {
-                starsHTML = `<div class="star-main">武曲<span class="sihua si-lu">祿</span></div><div class="star-sub">祿存</div>`;
-            }
-
-            p.innerHTML = `
-                <div class="p-age">${6+i*10}-${15+i*10} 歲</div>
-                <div class="stars-container">${starsHTML}</div>
-                <div class="p-name">${name}</div>
-                <div class="p-gz">丙寅</div>
-            `;
-            grid.appendChild(p);
-        });
+                p.innerHTML = `
+                    <div class="p-dx-gan">${d.gan}</div>
+                    <div class="p-age-range">${d.age}</div>
+                    <div class="star-box">${sHTML}</div>
+                    <div class="p-title">${d.name}</div>
+                    <div class="p-shishen">${d.shen}</div>
+                    <div class="p-gz-pos">${["寅","卯","辰","巳","午","未","申","酉","戌","亥","子","丑"][i]}</div>
+                `;
+                grid.appendChild(p);
+            });
+            grid.classList.add('chart-active');
+        }, 100);
     }
 
-    async function runAI(type) {
-        const targetId = type === 'full' ? 'full-analysis' : 'decade-analysis';
-        const targetEl = document.getElementById(targetId);
-        targetEl.innerHTML = "";
-        targetEl.classList.add('typing');
+    // 4. 解析深度化：过渡感逻辑
+    function deepAudit(type) {
+        const load = document.getElementById('loading-1');
+        const text = document.getElementById('text-1');
+        
+        text.style.opacity = "0.3";
+        load.style.display = "block";
+        
+        // 模拟知识库检索延时
+        setTimeout(() => {
+            load.innerHTML += "<br>> 鏈接大藏經數據模組... [OK]";
+        }, 500);
 
-        const features = { palace: "命宮", mainStars: ["廉貞", "七殺"], sihua: "忌" };
-
-        // 从玄学知识库检索信息
-        const pContext = XUAN_KNOWLEDGE_BASE.palaces[features.palace];
-        const sContext = features.mainStars.map(s => XUAN_KNOWLEDGE_BASE.stars[s]).join("");
-        const siContext = XUAN_KNOWLEDGE_BASE.si_hua[features.sihua];
-
-        // 模拟 AI 缝合玄学语境
-        const resultText = `【玄解】\n觀汝之${features.palace}（${pContext}），當前正逢 ${features.mainStars.join("與")} 坐鎮。${sContext} 奈何時逢【${features.sihua}】星沖動：${siContext} \n此象寓意近期「氣數有阻，明珠蒙塵」。雖具破舊立新之勇，卻恐因思慮過重陷於膠著。此時當斂其鋒芒，静待時變，切莫強求「造化」之功。`;
-
-        let i = 0;
-        const timer = setInterval(() => {
-            if (i < resultText.length) {
-                targetEl.innerHTML += resultText.charAt(i) === '\n' ? '<br>' : resultText.charAt(i);
-                i++;
-            } else {
-                clearInterval(timer);
-                targetEl.classList.remove('typing');
-            }
-        }, 50);
+        setTimeout(() => {
+            load.style.display = "none";
+            text.style.opacity = "1";
+            text.innerHTML = `【乾坤審計】<br>觀汝之命，廉貞七殺同鎮寅宮，乃「英雄仗劍」之格局。甲戌年生人，歲干引動破軍化權，主此生變動劇烈，具開天闢地之能。然命宮天干坐丙，廉貞自化忌，明珠蒙塵，多因情志或思慮過重而自陷泥沼。財帛武府見祿，資糧充盈，唯須化解「權忌交戰」之內耗，方能乾坤轉運，不負造化。`;
+        }, 1500);
     }
 
-    window.onload = renderChart;
+    window.onload = initArray;
 </script>
-
 </body>
 </html>
