@@ -2,132 +2,143 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>TERMINAL 16.0 | 全息命理终端 v2.0</title>
+    <title>TERMINAL 17.0 | 赛博国风命理终端 v4.1</title>
     <style>
         :root {
-            --bg: #0a0a0a;
+            --bg: #050505;
             --gold: #d4af37;
             --gold-dim: rgba(212, 175, 55, 0.2);
-            --ji-red: #c93636;
+            --gold-dark: #332a00;
             --lu-green: #7fbf7f;
             --quan-blue: #4a90e2;
             --ke-white: #e0e0e0;
-            --panel-bg: rgba(10, 10, 10, 0.85);
-            --border-color: #222;
+            --ji-red: #ff0000;
+            --border-color: #1a1a1a;
+            --panel-bg: rgba(5, 5, 5, 0.9);
         }
 
         body { background: var(--bg); color: #ccc; font-family: "Microsoft YaHei", sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; }
 
-        /* --- 顶部控制区 --- */
+        /* --- 1. 顶部交互入口 --- */
         .top-bar {
             width: 100%; padding: 20px; background: rgba(0,0,0,0.9); border-bottom: 1px solid var(--gold-dim);
-            display: flex; justify-content: center; gap: 12px; align-items: center; z-index: 100; box-shadow: 0 2px 20px rgba(0,0,0,0.8);
+            display: flex; justify-content: center; gap: 15px; align-items: center; z-index: 100; box-shadow: 0 2px 20px rgba(0,0,0,0.8);
         }
-        select, button {
+        select {
             background: #111; border: 1px solid var(--gold-dim); color: var(--gold);
             padding: 8px 15px; font-size: 14px; cursor: pointer; outline: none; transition: 0.3s;
         }
         select:focus { border-color: var(--gold); box-shadow: 0 0 10px var(--gold-dim); }
-        button { background: rgba(212, 175, 55, 0.1); font-weight: bold; padding: 8px 25px; letter-spacing: 2px; }
-        button:hover { background: var(--gold); color: #000; box-shadow: 0 0 20px var(--gold); }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .btn-deploy {
+            background: rgba(212, 175, 55, 0.1); border: 1px solid var(--gold); color: var(--gold);
+            padding: 8px 25px; font-size: 15px; font-weight: bold; cursor: pointer; transition: all 0.3s;
+            box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.2); letter-spacing: 2px;
+        }
+        .btn-deploy:hover { background: var(--gold); color: #000; box-shadow: 0 0 20px var(--gold); transform: scale(1.05); }
+        .btn-deploy:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); transform: none; box-shadow: none; }
 
-        .layout-container { display: grid; grid-template-columns: 880px 400px; gap: 35px; padding: 40px; }
+        .layout-container { display: grid; grid-template-columns: 880px 400px; gap: 35px; padding: 40px; position: relative; }
 
-        /* --- 地盘网格 (底层网格规范) --- */
+        /* --- 2. 地盘网格 (待机：5-10% 极低透明度) --- */
         .chart-grid {
             display: grid; grid-template-columns: repeat(4, 220px); grid-template-rows: repeat(4, 220px);
-            gap: 1px; background: var(--border-color); position: relative;
+            gap: 1px; background: transparent; position: relative; border: 1px solid transparent;
         }
-
-        .palace {
-            background: var(--bg); position: relative; padding: 15px; box-sizing: border-box;
-            /* 初始状态：5%-8% 透明度，暗金微光 */
-            opacity: 0.08; transition: opacity 0.5s ease-out, box-shadow 0.5s;
-            box-shadow: inset 0 0 10px rgba(212,175,55,0.05);
-        }
-        .palace.active { opacity: 1; box-shadow: inset 0 0 20px rgba(212,175,55,0.1); border: 1px solid var(--gold-dim); }
-
-        .p-name-bg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; font-weight: bold; color: var(--gold); opacity: 0.2; letter-spacing: 5px; }
         
-        /* --- 星曜飞布动画 (用户规范) --- */
+        .palace {
+            background: rgba(10,10,10,1); position: relative; padding: 15px; box-sizing: border-box;
+            border: 1px solid var(--gold-dark); opacity: 0.08; transition: opacity 0.3s ease-out, border-color 0.5s, box-shadow 0.5s;
+        }
+        .palace-name { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; font-weight: bold; color: var(--gold); opacity: 0.2; letter-spacing: 5px; }
+        
+        /* 激活后的激光网格 */
+        .palace.active { opacity: 1; border-color: var(--gold); box-shadow: inset 0 0 20px rgba(212,175,55,0.15), 0 0 10px rgba(212,175,55,0.2); }
+
+        /* --- 3. 星曜飞布动画 --- */
         @keyframes starLand {
-            0% { opacity: 0; transform: scale(0.5) translateY(-30px); filter: blur(8px); }
-            60% { transform: scale(1.2) translateY(0); filter: blur(0); }
-            100% { opacity: 1; transform: scale(1) translateY(0); text-shadow: 0 0 10px rgba(212, 175, 55, 0.6); }
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5) translateY(-50px); filter: blur(10px); }
+            60% { transform: translate(0, 0) scale(1.2) translateY(0); filter: blur(0); }
+            100% { opacity: 1; transform: translate(0, 0) scale(1) translateY(0); text-shadow: 0 0 10px rgba(212, 175, 55, 0.6); }
         }
 
         .star-container { display: flex; flex-direction: row-reverse; gap: 10px; height: 130px; margin-top: 25px; position: relative; z-index: 2; }
-        .main-star { 
-            writing-mode: vertical-rl; font-size: 22px; font-weight: bold; color: #eee; letter-spacing: 3px;
-            opacity: 0; /* 初始隐藏，等待动画 */
-        }
-        /* 统一四化配色规范 */
-        .hua-marker { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font-size: 10px; padding: 2px; border-radius: 2px; writing-mode: horizontal-tb; font-weight: normal; text-shadow: none; color: #fff;}
+        .m-star { writing-mode: vertical-rl; font-size: 22px; font-weight: bold; color: #eee; letter-spacing: 3px; opacity: 0; position: relative; }
+        .m-star.gold { color: var(--gold); }
+        
+        /* 四化严格规范 */
+        .hua-marker { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font-size: 11px; padding: 2px; border-radius: 2px; writing-mode: horizontal-tb; color: #fff; font-weight: bold; text-shadow: none; }
         .hua-lu .hua-marker { background: var(--lu-green); }
         .hua-quan .hua-marker { background: var(--quan-blue); }
         .hua-ke .hua-marker { background: var(--ke-white); color: #000; }
-        .hua-ji { color: #ff9999; }
-        .hua-ji .hua-marker { background: var(--ji-red); box-shadow: 0 0 8px var(--ji-red); }
+        .hua-ji { color: var(--ji-red) !important; animation: pulseRed 1.5s infinite; }
+        .hua-ji .hua-marker { background: var(--ji-red); }
 
-        /* 其他宫位细节 */
-        .p-gan { position: absolute; top: 10px; left: 10px; color: var(--gold); font-weight: bold; font-size: 16px; opacity:0; transition: 0.5s; }
-        .p-branch { position: absolute; bottom: 10px; right: 10px; font-size: 12px; color: #555; opacity:0; transition: 0.5s; }
-        .palace.active .p-gan, .palace.active .p-branch { opacity: 1; }
-
-        /* --- 中心核心区 (全息预热) --- */
-        .center-hub {
-            grid-area: 2 / 2 / 4 / 4; position: relative; display: flex; justify-content: center; align-items: center;
-            overflow: hidden; background: radial-gradient(circle at center, rgba(212,175,55,0.05) 0%, transparent 70%);
+        @keyframes pulseRed {
+            0%, 100% { text-shadow: 0 0 5px var(--ji-red); opacity: 1; }
+            50% { text-shadow: 0 0 15px var(--ji-red); opacity: 0.7; }
         }
 
-        /* 1. 八卦核心组件 */
-        #bagua-core { width: 300px; height: 300px; transition: all 0.5s; transform-origin: center; }
+        /* 宫位其他信息 */
+        .p-gan { position: absolute; top: 10px; left: 10px; color: var(--gold); font-weight: bold; font-size: 16px; opacity:0; }
+        .p-branch { position: absolute; bottom: 10px; right: 10px; font-size: 12px; color: #555; opacity:0; }
+        .palace.active .p-gan, .palace.active .p-branch { opacity: 1; transition: opacity 0.5s; }
+
+        /* --- 4. 核心层：全息八卦能量枢纽 --- */
+        .center-hub {
+            grid-area: 2 / 2 / 4 / 4; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10;
+        }
+
+        #bagua-core { width: 320px; height: 320px; transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); transform-origin: center; }
         .taiji { transform-origin: center; animation: spin 20s linear infinite; }
-        .taiji.male { animation-direction: normal; } /* 顺时针 */
-        .taiji.female { animation-direction: reverse; } /* 逆时针 */
-        .taiji.fast { animation-duration: 2s; filter: drop-shadow(0 0 15px var(--gold)); }
+        .taiji.male { animation-direction: normal; } /* 男顺 */
+        .taiji.female { animation-direction: reverse; } /* 女逆 */
+        .taiji.fast { animation-duration: 2s; filter: drop-shadow(0 0 20px var(--gold)); }
         
         .ring-text { font-family: "Microsoft YaHei"; fill: var(--gold); font-size: 14px; font-weight: bold; letter-spacing: 2px; }
-        .bagua-symbols { fill: rgba(212,175,55,0.3); font-size: 20px; transform-origin: center; animation: spin 40s linear infinite reverse; }
-        .bagua-symbols.fast { animation-duration: 3s; fill: var(--gold); filter: drop-shadow(0 0 10px var(--gold)); }
+        .bagua-symbols { fill: rgba(212,175,55,0.4); font-size: 22px; transform-origin: center; animation: spin 40s linear infinite reverse; }
+        .bagua-symbols.fast { animation-duration: 3s; fill: var(--gold); filter: drop-shadow(0 0 15px var(--gold)); }
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        .status-text { position: absolute; bottom: 20px; font-family: monospace; color: var(--gold); font-size: 12px; opacity: 0.7; }
+        .status-text { position: absolute; bottom: -10px; font-family: monospace; color: var(--gold); font-size: 12px; opacity: 0.8; transition: 0.3s; }
+        .cursor { animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
 
-        /* 2. 悬浮玻璃卡片 (排盘后显示) */
-        .info-card {
-            position: absolute; width: 80%; height: 80%;
-            background: rgba(10, 10, 10, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(212, 175, 55, 0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            opacity: 0; pointer-events: none; transition: 0.8s; transform: scale(0.9); z-index: 10;
+        /* 磨砂玻璃罗盘态 (排盘后) */
+        .bagua-core.active {
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            transform: scale(0.4); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 50%;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(212,175,55,0.1); cursor: pointer;
         }
-        .info-card.visible { opacity: 1; pointer-events: auto; transform: scale(1); }
-        .info-card h2 { color: var(--gold); letter-spacing: 6px; margin-bottom: 20px; text-shadow: 0 0 10px var(--gold-dim); }
-        .bazi-display { display: flex; gap: 20px; font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 20px; padding: 10px 20px; border-bottom: 1px solid var(--gold-dim); }
-        .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 14px; color: #aaa; text-align: center; }
-        .meta-grid span { color: var(--gold); font-weight: bold; }
+        .bagua-core.active .bagua-symbols { fill: var(--gold); animation-duration: 60s; }
+        
+        .core-info-overlay {
+            position: absolute; opacity: 0; pointer-events: none; transition: 0.5s; text-align: center;
+            color: var(--gold); font-weight: bold; font-size: 24px; text-shadow: 0 0 10px #000;
+        }
+        .bagua-core.active + .core-info-overlay { opacity: 1; pointer-events: auto; }
 
-        /* --- 右侧面板 (纯黑背景 + 内发光) --- */
-        .sidebar { display: flex; flex-direction: column; gap: 25px; }
+        /* --- 5. 右侧解析面板 (内发光) --- */
+        .analysis-panel { display: flex; flex-direction: column; gap: 20px; transition: transform 0.5s; }
         .panel { 
-            background: #050505; border: 1px solid var(--border-color); padding: 25px; 
-            box-shadow: inset 0 0 30px rgba(212,175,55,0.03); position: relative;
+            background: var(--panel-bg); border: 1px solid var(--border-color); padding: 25px; 
+            box-shadow: inset 0 0 30px rgba(212,175,55,0.05); position: relative; min-height: 200px;
         }
-        .panel::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: 0.5; }
+        .panel::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: 0.6; }
         .panel h3 { margin: 0 0 15px 0; color: var(--gold); font-size: 18px; letter-spacing: 2px; }
         
-        .term-box { font-family: monospace; font-size: 14px; line-height: 1.8; color: #bbb; min-height: 150px; }
-        /* 关键词高亮 */
-        .highlight { color: var(--gold); font-weight: bold; text-shadow: 0 0 5px rgba(212,175,55,0.4); }
-        .highlight.danger { color: var(--ji-red); text-shadow: 0 0 5px rgba(201,54,54,0.4); }
-        
+        .placeholder-scan { color: #444; font-family: monospace; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); animation: scanPulse 2s infinite; }
+        @keyframes scanPulse { 50% { opacity: 0.3; } }
+
+        .term-box { font-size: 15px; line-height: 1.8; color: #ccc; }
+        .highlight { font-size: 16px; color: var(--gold); font-weight: bold; text-shadow: 0 0 5px rgba(212,175,55,0.5); }
+        .highlight.danger { color: var(--ji-red); text-shadow: 0 0 5px rgba(255,0,0,0.5); }
+
         /* Overlay 遮罩 */
         #deploy-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85);
-            z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+            z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.2s;
         }
     </style>
 </head>
@@ -136,75 +147,69 @@
 <div id="deploy-overlay"></div>
 
 <div class="top-bar">
-    <select id="gender" onchange="triggerCoreReaction()"><option value="1">乾造 (男)</option><option value="0">坤造 (女)</option></select>
-    <select id="ySel" onchange="triggerCoreReaction()"></select>
-    <select id="mSel" onchange="triggerCoreReaction()"></select>
-    <select id="dSel" onchange="triggerCoreReaction()"></select>
-    <select id="hSel" onchange="triggerCoreReaction()"></select>
-    <button id="btnDeploy" onclick="executeDeployment()">布阵排盘</button>
+    <select id="gender" onchange="triggerCore()"><option value="1">乾造 (男)</option><option value="0">坤造 (女)</option></select>
+    <select id="ySel" onchange="triggerCore()"></select>
+    <select id="mSel" onchange="triggerCore()"></select>
+    <select id="dSel" onchange="triggerCore()"></select>
+    <select id="hSel" onchange="triggerCore()"></select>
+    <button class="btn-deploy" id="btnDeploy" onclick="startDeployment()">⚡ 布阵排盘</button>
 </div>
 
 <div class="layout-container">
     <div class="chart-grid" id="mainGrid">
         <div class="center-hub" id="centerHub">
-            <svg id="bagua-core" viewBox="0 0 200 200">
-                <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(212,175,55,0.1)" stroke-width="1"/>
+            <svg id="bagua-core" viewBox="0 0 200 200" class="idle">
+                <circle cx="100" cy="100" r="95" fill="none" stroke="rgba(212,175,55,0.1)" stroke-width="1"/>
                 
                 <g class="bagua-symbols" id="bagua-ring">
-                    <text x="100" y="25" text-anchor="middle">☰</text>
-                    <text x="153" y="47" text-anchor="middle">☱</text>
-                    <text x="175" y="105" text-anchor="middle">☲</text>
-                    <text x="153" y="163" text-anchor="middle">☳</text>
-                    <text x="100" y="185" text-anchor="middle">☴</text>
-                    <text x="47" y="163" text-anchor="middle">☵</text>
-                    <text x="25" y="105" text-anchor="middle">☶</text>
-                    <text x="47" y="47" text-anchor="middle">☷</text>
+                    <text x="100" y="22" text-anchor="middle">☰</text>
+                    <text x="155" y="45" text-anchor="middle">☱</text>
+                    <text x="178" y="105" text-anchor="middle">☲</text>
+                    <text x="155" y="165" text-anchor="middle">☳</text>
+                    <text x="100" y="188" text-anchor="middle">☴</text>
+                    <text x="45" y="165" text-anchor="middle">☵</text>
+                    <text x="22" y="105" text-anchor="middle">☶</text>
+                    <text x="45" y="45" text-anchor="middle">☷</text>
                 </g>
 
                 <g class="ring-text">
-                    <text x="100" y="45" text-anchor="middle" id="svg-year">壬寅</text>
-                    <text x="155" y="105" text-anchor="middle" id="svg-month">丁未</text>
-                    <text x="100" y="165" text-anchor="middle" id="svg-day">庚子</text>
-                    <text x="45" y="105" text-anchor="middle" id="svg-hour">丙戌</text>
+                    <text x="100" y="55" text-anchor="middle" id="ring-year">壬寅</text>
+                    <text x="145" y="105" text-anchor="middle" id="ring-month">丁未</text>
+                    <text x="100" y="155" text-anchor="middle" id="ring-day">庚子</text>
+                    <text x="55" y="105" text-anchor="middle" id="ring-hour">丙戌</text>
                 </g>
 
-                <g class="taiji male" id="taiji-core" transform="translate(100, 100) scale(0.4)">
+                <g class="taiji male" id="taiji-core" transform="translate(100, 100) scale(0.35)">
                     <path d="M0 -50 A50 50 0 0 1 0 50 A25 25 0 0 0 0 0 A25 25 0 0 1 0 -50" fill="#d4af37"/>
-                    <path d="M0 -50 A50 50 0 0 0 0 50 A25 25 0 0 0 0 0 A25 25 0 0 1 0 -50" fill="#0a0a0a" stroke="#d4af37" stroke-width="1"/>
-                    <circle cx="0" cy="-25" r="8" fill="#0a0a0a"/>
+                    <path d="M0 -50 A50 50 0 0 0 0 50 A25 25 0 0 0 0 0 A25 25 0 0 1 0 -50" fill="#050505" stroke="#d4af37" stroke-width="1"/>
+                    <circle cx="0" cy="-25" r="8" fill="#050505"/>
                     <circle cx="0" cy="25" r="8" fill="#d4af37"/>
                 </g>
             </svg>
-
-            <div class="status-text" id="core-status">> 系统就绪... 等待生辰注入 _</div>
-
-            <div class="info-card" id="infoCard">
-                <h2>命理终端</h2>
-                <div class="bazi-display" id="card-bazi">壬寅 丁未 庚子 丙戌</div>
-                <div class="meta-grid">
-                    <div>命宫：<span id="card-ming">--</span></div>
-                    <div>身宫：<span id="card-shen">--</span></div>
-                    <div>五行局：<span id="card-ju">--</span></div>
-                    <div>真太阳时：<span>+14分钟</span></div>
-                </div>
+            <div class="core-info-overlay" id="coreGlassInfo">
+                <div style="font-size:16px;" id="glass-ju">火六局</div>
+                <div style="font-size:12px; margin-top:5px; color:#aaa;">真太阳时校验完成</div>
             </div>
+            <div class="status-text" id="status-text">> 系统就绪... 等待生辰注入 <span class="cursor">_</span></div>
         </div>
     </div>
 
-    <div class="sidebar">
+    <div class="analysis-panel" id="rightPanel">
         <div class="panel">
-            <h3>命盘全析</h3>
-            <div class="term-box" id="res-full">> 暂无数据。</div>
+            <h3>命理核心解算</h3>
+            <div class="placeholder-scan" id="scan-full">Awaiting Data...</div>
+            <div class="term-box" id="res-full"></div>
         </div>
         <div class="panel">
-            <h3>大限详析</h3>
-            <div class="term-box" id="res-limit">> 暂无数据。</div>
+            <h3>大限时空轨线</h3>
+            <div class="placeholder-scan" id="scan-limit">Awaiting Data...</div>
+            <div class="term-box" id="res-limit"></div>
         </div>
     </div>
 </div>
 
 <script>
-    // 1. 初始化下拉框
+    // 初始化下拉
     const ySel = document.getElementById('ySel');
     const mSel = document.getElementById('mSel');
     const dSel = document.getElementById('dSel');
@@ -216,174 +221,162 @@
     hours.forEach(h => hSel.options.add(new Option(`${h}时`, h)));
 
     const gridLayout = ["4/1", "4/2", "4/3", "4/4", "3/4", "2/4", "1/4", "1/3", "1/2", "1/1", "2/1", "3/1"];
-    const palaceNames = ["命宫","兄弟","夫妻","子女","财帛","疾厄","迁移","奴仆","官禄","田宅","福德","父母"];
+    const pNames = ["命宫","兄弟","夫妻","子女","财帛","疾厄","迁移","奴仆","官禄","田宅","福德","父母"];
 
-    // 核心数据生成器 (模拟不同八字产生不同排盘，解决“无变化”Bug)
-    function generatePalaceData() {
-        // 根据年份下拉框的 index 做一个简单的偏移，模拟重新排盘的数据变化
-        const offset = ySel.selectedIndex % 12; 
-        const data = [];
-        const stars = [
-            { main: ["紫微"], hua: "quan" }, { main: ["天机"], hua: "lu" }, { main: ["破军"], hua: "" },
-            { main: ["太阳"], hua: "" }, { main: ["武曲","天府"], hua: "ke" }, { main: ["天同"], hua: "" },
-            { main: ["七杀"], hua: "" }, { main: ["天梁"], hua: "" }, { main: ["廉贞","贪狼"], hua: "ji" },
-            { main: ["巨门"], hua: "" }, { main: ["天相"], hua: "" }, { main: ["无主星"], hua: "" }
-        ];
+    // 核心目标 4: 动态文案引擎 (AnalysisGenerator)
+    const starDict = {
+        "七杀": { text: "命主性格<span class='highlight'>刚毅果决</span>，具开创之功。一生<span class='highlight'>动荡起伏</span>，宜在变局中求胜。属于典型的武职格局。", limit: "当前大限变动剧烈，面临事业与人生的<span class='highlight'>重大抉择</span>。" },
+        "天机": { text: "命主<span class='highlight'>思维敏捷</span>，善谋略，但多思多虑。宜从事策划、五术或幕僚工作，切忌<span class='highlight danger'>心浮气躁</span>。", limit: "大限遇智星，宜进修学习，<span class='highlight'>切勿盲目投资</span>。" },
+        "贪狼": { text: "命带桃花与物欲，<span class='highlight'>交际手腕高明</span>。逢吉则发，逢煞则易生酒色之灾，为标准之<span class='highlight'>杀破狼格</span>。", limit: "此运程财源广进，欲望极强，需谨防<span class='highlight danger'>因贪致贫</span>。" },
+        "紫微": { text: "命宫主星尊贵，具<span class='highlight'>领袖气质</span>。一生得贵人相助，但若无左辅右弼，易成<span class='highlight danger'>孤君</span>。", limit: "大运平稳，事业有望拔高，宜掌权固位。" }
+    };
+
+    function generateAnalysisData(yearIdx, genderVal) {
+        // 根据输入动态生成数据，彻底杜绝死板复制
+        const offset = yearIdx + parseInt(genderVal);
+        const stars = ["七杀", "天机", "贪狼", "紫微"];
+        const mainStar = stars[offset % 4];
+        const isJi = (yearIdx % 3 === 0); // 伪随机化忌
         
+        const data = [];
         for(let i=0; i<12; i++) {
-            const starIdx = (i + offset) % 12;
-            const pNameIdx = (i + Math.floor(offset/2)) % 12;
+            const isMing = (i === (offset % 12));
             data.push({
-                name: palaceNames[pNameIdx],
+                name: pNames[i],
                 gan: ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"][i%10],
                 branch: hours[i],
-                main: stars[starIdx].main,
-                hua: stars[starIdx].hua
+                main: isMing ? [mainStar] : [],
+                hua: isMing && isJi ? "ji" : (isMing ? "lu" : "")
             });
         }
-        return data;
+        
+        let text = starDict[mainStar].text;
+        if(isJi) text += " 然命宫见<span class='highlight danger'>化忌</span>，主明珠蒙尘，需防小人作祟。";
+        
+        return { chartData: data, fullText: text, limitText: starDict[mainStar].limit, ju: ["水二局","木三局","金四局","土五局","火六局"][offset%5] };
     }
 
-    // 2. 初始化底层网格 (5%透明度预热)
-    function initEmptyGrid() {
+    // 初始化网格
+    function initGrid() {
         const grid = document.getElementById('mainGrid');
-        // 清理旧宫位（保留 centerHub）
-        Array.from(grid.children).forEach(el => {
-            if(el.id !== 'centerHub') el.remove();
-        });
-
+        Array.from(grid.children).forEach(el => { if(el.id !== 'centerHub') el.remove(); });
         for(let i=0; i<12; i++) {
             const p = document.createElement('div');
-            p.className = 'palace';
-            p.style.gridArea = gridLayout[i];
+            p.className = 'palace idle';
             p.id = `palace-${i}`;
-            p.innerHTML = `<div class="p-name-bg">${palaceNames[i]}</div>`;
+            p.style.gridArea = gridLayout[i];
+            p.innerHTML = `<div class="palace-name">${pNames[i]}</div>`;
             grid.appendChild(p);
         }
     }
 
-    // 3. 联动反馈：修改选项时核心加速
-    let reactionTimer;
-    function triggerCoreReaction() {
+    // 联动触发器
+    let reactTimer;
+    function triggerCore() {
         const taiji = document.getElementById('taiji-core');
         const bagua = document.getElementById('bagua-ring');
-        const gender = document.getElementById('gender').value;
-        const statusText = document.getElementById('core-status');
+        const st = document.getElementById('status-text');
         
-        taiji.className = `taiji fast ${gender === '1' ? 'male' : 'female'}`;
+        taiji.className = `taiji fast ${document.getElementById('gender').value === '1' ? 'male' : 'female'}`;
         bagua.classList.add('fast');
-        statusText.innerText = "> 参数注入中... 实时演算 _";
+        st.innerHTML = "> 引擎高速演算中... <span class='cursor'>_</span>";
+        
+        const gans = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+        document.getElementById('ring-year').innerText = gans[ySel.selectedIndex%10] + "年";
 
-        // 更新 SVG 上的四柱 (模拟)
-        const tGan = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
-        document.getElementById('svg-year').innerText = tGan[ySel.selectedIndex%10] + "年";
-
-        clearTimeout(reactionTimer);
-        reactionTimer = setTimeout(() => {
-            taiji.className = `taiji ${gender === '1' ? 'male' : 'female'}`;
+        clearTimeout(reactTimer);
+        reactTimer = setTimeout(() => {
+            taiji.classList.remove('fast');
             bagua.classList.remove('fast');
-            statusText.innerText = "> 参数锁定... 待命 _";
+            st.innerHTML = "> 系统就绪... 等待生辰注入 <span class='cursor'>_</span>";
+        }, 800);
+    }
+
+    // --- 核心目标 3: 动画序列执行器 ---
+    async function startDeployment() {
+        const btn = document.getElementById('btnDeploy');
+        const overlay = document.getElementById('deploy-overlay');
+        const core = document.getElementById('bagua-core');
+        const stText = document.getElementById('status-text');
+        
+        btn.disabled = true;
+        document.getElementById('gender').disabled = true;
+        
+        // 生成动态数据
+        const dataPayload = generateAnalysisData(ySel.selectedIndex, document.getElementById('gender').value);
+        
+        // Phase 1 (0.0s): 引擎启动
+        console.log("[Audio] 高频电流声 + 机械锁定");
+        overlay.style.opacity = '1';
+        core.style.filter = 'drop-shadow(0 0 40px var(--gold)) scale(1.1)';
+        stText.innerHTML = "> SYSTEM LOCKING...";
+        
+        await new Promise(r => setTimeout(r, 500));
+        
+        // Phase 2 (0.5s): 星图展开 & 激光边框
+        console.log("[Audio] 激光扫描声");
+        overlay.style.opacity = '0';
+        core.classList.remove('idle');
+        core.classList.add('active'); // 转为磨砂玻璃罗盘
+        stText.style.display = 'none';
+        document.getElementById('glass-ju').innerText = dataPayload.ju;
+
+        dataPayload.chartData.forEach((d, i) => {
+            const p = document.getElementById(`palace-${i}`);
+            p.classList.remove('idle');
+            p.classList.add('active');
+            
+            let sHTML = '';
+            d.main.forEach(s => {
+                let hClass = d.hua ? `hua-${d.hua}` : '';
+                let marker = '';
+                if(d.hua === 'lu') marker = `<div class="hua-marker">禄</div>`;
+                if(d.hua === 'ji') marker = `<div class="hua-marker">忌</div>`;
+                
+                // 动画注入：带缩放反弹与滤镜
+                sHTML += `<div class="m-star gold ${hClass}" style="animation: starLand 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; animation-delay: ${1.2 + (i*0.06)}s;">${s}${marker}</div>`;
+            });
+
+            p.innerHTML = `
+                <div class="p-gan">${d.gan}</div>
+                <div class="p-branch">${d.branch}</div>
+                <div class="star-container">${sHTML}</div>
+                <div class="palace-name" style="font-size:14px; opacity:0.6; top:auto; bottom:5px;">${d.name}</div>
+            `;
+        });
+
+        await new Promise(r => setTimeout(r, 1500)); // 等待星曜飞入 (1.2s - 2.0s)
+        console.log("[Audio] 晶体坠落声");
+        
+        // Phase 4 (2.0s+): 数据解析打字机
+        console.log("[Audio] 数据传输声");
+        document.getElementById('scan-full').style.display = 'none';
+        document.getElementById('scan-limit').style.display = 'none';
+        
+        typeWriter('res-full', `> [数据解析完毕]<br><br>${dataPayload.fullText}`);
+        setTimeout(() => {
+            typeWriter('res-limit', `> [轨道监测完毕]<br><br>${dataPayload.limitText}`);
+            btn.disabled = false;
+            document.getElementById('gender').disabled = false;
         }, 1000);
     }
 
-    // 4. 执行部署动画 (四阶段)
-    function executeDeployment() {
-        const btn = document.getElementById('btnDeploy');
-        btn.disabled = true;
-        const overlay = document.getElementById('deploy-overlay');
-        const baguaCore = document.getElementById('bagua-core');
-        const infoCard = document.getElementById('infoCard');
-        const statusText = document.getElementById('core-status');
-        
-        const data = generatePalaceData();
-
-        // 【重置状态】解决重排无变化的问题
-        infoCard.classList.remove('visible');
-        baguaCore.style.opacity = '1';
-        baguaCore.style.transform = 'scale(1)';
-        document.getElementById('res-full').innerHTML = "";
-        document.getElementById('res-limit').innerHTML = "";
-        initEmptyGrid(); // 重新生成空 DOM
-
-        // Phase 1: 引擎启动 (0.0s)
-        statusText.innerText = "> SYSTEM LOCKING...";
-        overlay.style.opacity = '1';
-        baguaCore.style.filter = 'drop-shadow(0 0 30px #d4af37)';
-        
-        setTimeout(() => {
-            // Phase 2: 星图展开 & 核心炸裂 (0.5s)
-            overlay.style.opacity = '0';
-            baguaCore.style.transform = 'scale(2)';
-            baguaCore.style.opacity = '0';
-            statusText.style.display = 'none';
-
-            data.forEach((d, i) => {
-                const p = document.getElementById(`palace-${i}`);
-                p.classList.add('active'); // 网格变亮
-                
-                // 准备注入星曜内容
-                let sHTML = '';
-                d.main.forEach(s => {
-                    let huaHTML = '';
-                    let cClass = '';
-                    if(d.hua) {
-                        cClass = `hua-${d.hua}`;
-                        const huaMap = { lu: '禄', quan: '权', ke: '科', ji: '忌' };
-                        huaHTML = `<div class="hua-marker">${huaMap[d.hua]}</div>`;
-                    }
-                    // 添加星曜元素，注入 animation CSS 和 delay
-                    sHTML += `<div class="main-star ${cClass}" style="animation: starLand 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; animation-delay: ${1.2 + (i*0.05)}s;">${s}${huaHTML}</div>`;
-                });
-
-                p.innerHTML = `
-                    <div class="p-gan">${d.gan}</div>
-                    <div class="p-branch">${d.branch}</div>
-                    <div class="star-container">${sHTML}</div>
-                    <div class="p-name-bg" style="font-size:14px; opacity:0.5; bottom:10px; top:auto; transform:translateX(-50%);">${d.name}</div>
-                `;
-            });
-        }, 500);
-
-        setTimeout(() => {
-            // Phase 3 结束，切换中心卡片 (2.0s)
-            document.getElementById('card-ming').innerText = data.find(x => x.name === '命宫').branch + "宫";
-            document.getElementById('card-ju').innerText = "火六局";
-            infoCard.classList.add('visible');
-        }, 2000);
-
-        setTimeout(() => {
-            // Phase 4: 数据解析 打字机 (2.5s)
-            btn.disabled = false;
-            typeWriter("res-full", "> [全局扫描完毕]<br><br>命主性情<span class='highlight'>刚毅果决</span>，具开创之功。然三方四正见<span class='highlight danger'>廉贞化忌</span>，主思虑过重，易生波折。宜在动荡中求谋，以<span class='highlight'>破军化禄</span>之冲劲破局。");
-            typeWriter("res-limit", "> [十年轨道推演]<br><br>当前大限行至财帛。此运程<span class='highlight'>财源广进</span>，事业有成，但需防范暗曜侵蚀。切莫贪功冒进，稳扎稳打方为上策。");
-        }, 2500);
-    }
-
-    // 打字机效果解析器 (支持 HTML 标签)
-    function typeWriter(elementId, text) {
-        const el = document.getElementById(elementId);
+    function typeWriter(id, htmlStr) {
+        const el = document.getElementById(id);
         el.innerHTML = "";
-        let i = 0;
-        let isTag = false;
-        let currentHTML = "";
-
+        let i = 0; let isTag = false; let current = "";
         const timer = setInterval(() => {
-            if (i >= text.length) {
-                clearInterval(timer);
-                return;
-            }
-            const char = text.charAt(i);
-            if (char === '<') isTag = true;
-            
-            currentHTML += char;
-            el.innerHTML = currentHTML + (isTag ? "" : "_");
-            
-            if (char === '>') isTag = false;
+            if(i >= htmlStr.length) { clearInterval(timer); return; }
+            const char = htmlStr.charAt(i);
+            if(char === '<') isTag = true;
+            current += char;
+            el.innerHTML = current + (isTag ? "" : "<span class='cursor'>_</span>");
+            if(char === '>') isTag = false;
             i++;
-        }, 30);
+        }, 15);
     }
 
-    window.onload = initEmptyGrid;
+    window.onload = initGrid;
 </script>
 </body>
 </html>
