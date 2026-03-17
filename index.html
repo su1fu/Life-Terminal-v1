@@ -42,7 +42,6 @@
 
         .palace {
             background: var(--bg); position: relative; padding: 15px; box-sizing: border-box;
-            /* 初始状态：5%-8% 透明度，暗金微光 */
             opacity: 0.08; transition: opacity 0.5s ease-out, box-shadow 0.5s;
             box-shadow: inset 0 0 10px rgba(212,175,55,0.05);
         }
@@ -60,7 +59,7 @@
         .star-container { display: flex; flex-direction: row-reverse; gap: 10px; height: 130px; margin-top: 25px; position: relative; z-index: 2; }
         .main-star { 
             writing-mode: vertical-rl; font-size: 22px; font-weight: bold; color: #eee; letter-spacing: 3px;
-            opacity: 0; /* 初始隐藏，等待动画 */
+            opacity: 0; 
         }
         /* 统一四化配色规范 */
         .hua-marker { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font-size: 10px; padding: 2px; border-radius: 2px; writing-mode: horizontal-tb; font-weight: normal; text-shadow: none; color: #fff;}
@@ -70,7 +69,6 @@
         .hua-ji { color: #ff9999; }
         .hua-ji .hua-marker { background: var(--ji-red); box-shadow: 0 0 8px var(--ji-red); }
 
-        /* 其他宫位细节 */
         .p-gan { position: absolute; top: 10px; left: 10px; color: var(--gold); font-weight: bold; font-size: 16px; opacity:0; transition: 0.5s; }
         .p-branch { position: absolute; bottom: 10px; right: 10px; font-size: 12px; color: #555; opacity:0; transition: 0.5s; }
         .palace.active .p-gan, .palace.active .p-branch { opacity: 1; }
@@ -81,11 +79,29 @@
             overflow: hidden; background: radial-gradient(circle at center, rgba(212,175,55,0.05) 0%, transparent 70%);
         }
 
+        /* [新增] 没排盘时的待机呼吸灯提示 */
+        .center-hub::before {
+            content: "SYSTEM IDLE / 等待生辰注入";
+            position: absolute;
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--gold);
+            letter-spacing: 4px;
+            opacity: 0.3;
+            animation: pulse 2s infinite ease-in-out;
+            pointer-events: none;
+            z-index: 1;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.1; }
+            50% { opacity: 0.6; }
+        }
+
         /* 1. 八卦核心组件 */
-        #bagua-core { width: 300px; height: 300px; transition: all 0.5s; transform-origin: center; }
+        #bagua-core { width: 300px; height: 300px; transition: all 0.5s; transform-origin: center; z-index: 2; }
         .taiji { transform-origin: center; animation: spin 20s linear infinite; }
-        .taiji.male { animation-direction: normal; } /* 顺时针 */
-        .taiji.female { animation-direction: reverse; } /* 逆时针 */
+        .taiji.male { animation-direction: normal; } 
+        .taiji.female { animation-direction: reverse; } 
         .taiji.fast { animation-duration: 2s; filter: drop-shadow(0 0 15px var(--gold)); }
         
         .ring-text { font-family: "Microsoft YaHei"; fill: var(--gold); font-size: 14px; font-weight: bold; letter-spacing: 2px; }
@@ -94,7 +110,7 @@
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        .status-text { position: absolute; bottom: 20px; font-family: monospace; color: var(--gold); font-size: 12px; opacity: 0.7; }
+        .status-text { position: absolute; bottom: 20px; font-family: monospace; color: var(--gold); font-size: 12px; opacity: 0.7; z-index: 2; }
 
         /* 2. 悬浮玻璃卡片 (排盘后显示) */
         .info-card {
@@ -120,7 +136,6 @@
         .panel h3 { margin: 0 0 15px 0; color: var(--gold); font-size: 18px; letter-spacing: 2px; }
         
         .term-box { font-family: monospace; font-size: 14px; line-height: 1.8; color: #bbb; min-height: 150px; }
-        /* 关键词高亮 */
         .highlight { color: var(--gold); font-weight: bold; text-shadow: 0 0 5px rgba(212,175,55,0.4); }
         .highlight.danger { color: var(--ji-red); text-shadow: 0 0 5px rgba(201,54,54,0.4); }
         
@@ -149,7 +164,6 @@
         <div class="center-hub" id="centerHub">
             <svg id="bagua-core" viewBox="0 0 200 200">
                 <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(212,175,55,0.1)" stroke-width="1"/>
-                
                 <g class="bagua-symbols" id="bagua-ring">
                     <text x="100" y="25" text-anchor="middle">☰</text>
                     <text x="153" y="47" text-anchor="middle">☱</text>
@@ -160,14 +174,12 @@
                     <text x="25" y="105" text-anchor="middle">☶</text>
                     <text x="47" y="47" text-anchor="middle">☷</text>
                 </g>
-
                 <g class="ring-text">
                     <text x="100" y="45" text-anchor="middle" id="svg-year">壬寅</text>
                     <text x="155" y="105" text-anchor="middle" id="svg-month">丁未</text>
                     <text x="100" y="165" text-anchor="middle" id="svg-day">庚子</text>
                     <text x="45" y="105" text-anchor="middle" id="svg-hour">丙戌</text>
                 </g>
-
                 <g class="taiji male" id="taiji-core" transform="translate(100, 100) scale(0.4)">
                     <path d="M0 -50 A50 50 0 0 1 0 50 A25 25 0 0 0 0 0 A25 25 0 0 1 0 -50" fill="#d4af37"/>
                     <path d="M0 -50 A50 50 0 0 0 0 50 A25 25 0 0 0 0 0 A25 25 0 0 1 0 -50" fill="#0a0a0a" stroke="#d4af37" stroke-width="1"/>
@@ -204,7 +216,7 @@
 </div>
 
 <script>
-    // 1. 初始化下拉框
+    // 1. 初始化下拉框 (保留你的动态生成逻辑)
     const ySel = document.getElementById('ySel');
     const mSel = document.getElementById('mSel');
     const dSel = document.getElementById('dSel');
@@ -218,9 +230,44 @@
     const gridLayout = ["4/1", "4/2", "4/3", "4/4", "3/4", "2/4", "1/4", "1/3", "1/2", "1/1", "2/1", "3/1"];
     const palaceNames = ["命宫","兄弟","夫妻","子女","财帛","疾厄","迁移","奴仆","官禄","田宅","福德","父母"];
 
-    // 核心数据生成器 (模拟不同八字产生不同排盘，解决“无变化”Bug)
+    // [新增] 星曜专业字典
+    const proDict = {
+        "廉贞": "囚星入命，其性精明，易陷情志纠葛。若逢化忌，主气数有阻。",
+        "七杀": "肃杀之星，具开创力，主人生多变动，具破旧立新之勇。",
+        "紫微": "帝星坐镇，格局宏大，多得贵人扶持。",
+        "破军": "耗星入命，主先破后立，具极强破坏力。",
+        "贪狼": "欲望之神，交际手腕佳，多才多艺。",
+        "武曲": "财星入命，刚毅果决，利于求财。",
+        "太阳": "光明磊落，博爱无私，具领导力。",
+        "天机": "智多星，善筹谋，但心思易动荡。",
+        "巨门": "暗星入命，口才佳，但也易招口舌是非。",
+        "无主星": "命宫空灵，易受环境牵引，宜借势而为。"
+    };
+
+    // [新增] 动态生成身宫与流年预警
+    function generateProfessionalInsight(data) {
+        const mingPalace = data.find(p => p.name === "命宫");
+        if (!mingPalace) return "系统错误：未能识别命宫。";
+
+        const star = mingPalace.main[0] || "无主星";
+        const branch = mingPalace.branch;
+        const shenGong = ["子", "寅", "辰", "午", "申", "戌"][Math.floor(Math.random() * 6)];
+        
+        let analysis = `> 【乾坤审计】<br>命宫：${branch}宫，身宫：${shenGong}宫。<br><br>`;
+        analysis += `命主坐 <span class="highlight">${star}</span>。${proDict[star] || "命格清奇，潜龙在渊。"}<br><br>`;
+        
+        // 增加流年大限预警 (适配你的 'ji' 数据结构)
+        if (mingPalace.hua === "ji") {
+            analysis += `<span class="highlight danger">「流年预警」：</span> 逢忌星冲动，当前磁场紊乱，切莫强求造化。`;
+        } else {
+            analysis += `「流年趋势」：当前大限运行平稳，时空轨迹已锁定。`;
+        }
+        
+        return analysis;
+    }
+
+    // 核心数据生成器 (保留你的模拟生成逻辑)
     function generatePalaceData() {
-        // 根据年份下拉框的 index 做一个简单的偏移，模拟重新排盘的数据变化
         const offset = ySel.selectedIndex % 12; 
         const data = [];
         const stars = [
@@ -243,55 +290,10 @@
         }
         return data;
     }
-// 1. 这里的 dictionary 是你的专业知识库，可以无限扩充
-const dictionary = {
-    stars: {
-        "紫微": "具备领导潜质，格局宏大，但需防孤军奋战。",
-        "天机": "思维敏捷，具谋略之才，但心思过重易焦虑。",
-        "太阳": "志向高远，处事公正，利于名声传播。",
-        "廉贞": "性格刚硬，带有傲气，感情与事业易生极端波动。",
-        "七杀": "将星入命，具备极强的开创力与执行力，宜武不宜文。",
-        "破军": "不破不立，人生多变动，是典型的开拓者。",
-        "无主星": "性格随和但也易受外界影响，借对宫之星曜为用。"
-    },
-    hua: {
-        "lu": "主一生财源顺遂，处事圆融。",
-        "quan": "主权力欲望与掌控力，利于升迁。",
-        "ke": "主名声与贵人相助，考试及文书运佳。",
-        "ji": "主阻碍与亏欠，是需要一生去修行的功课。"
-    }
-};
 
-// 2. 这里的函数就是“推演引擎”，它负责根据排盘数据拼凑文案
-function generateProfessionalInsight(data) {
-    const mingPalace = data.find(p => p.name === "命宫");
-    const mainStar = mingPalace.main[0]; 
-    const hua = mingPalace.hua;         
-
-    let insight = `观其之命宫，坐${mainStar}。`;
-    
-    // 基础性格判定
-    insight += dictionary.stars[mainStar] || "命格清奇，具备独特之天赋。";
-    
-    // 四化逻辑注入
-    if (hua && dictionary.hua[hua]) {
-        insight += `<br><br><span class='highlight'>[四化加持]</span> ${dictionary.hua[hua]}`;
-    }
-
-    // 宫位环境判定
-    insight += `<br><br>身处${mingPalace.branch}宫，`;
-    if (["子", "午", "卯", "酉"].includes(mingPalace.branch)) {
-        insight += "此乃“四败之地”，主情感波动较多。";
-    } else {
-        insight += "地势稳健，利于中晚年扎根。";
-    }
-
-    return insight;
-}
     // 2. 初始化底层网格 (5%透明度预热)
     function initEmptyGrid() {
         const grid = document.getElementById('mainGrid');
-        // 清理旧宫位（保留 centerHub）
         Array.from(grid.children).forEach(el => {
             if(el.id !== 'centerHub') el.remove();
         });
@@ -316,9 +318,11 @@ function generateProfessionalInsight(data) {
         
         taiji.className = `taiji fast ${gender === '1' ? 'male' : 'female'}`;
         bagua.classList.add('fast');
+        
+        // 隐藏掉系统待机呼吸文字
+        document.querySelector('.center-hub').style.setProperty('--breathe-opacity', '0');
         statusText.innerText = "> 参数注入中... 实时演算 _";
 
-        // 更新 SVG 上的四柱 (模拟)
         const tGan = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
         document.getElementById('svg-year').innerText = tGan[ySel.selectedIndex%10] + "年";
 
@@ -341,21 +345,21 @@ function generateProfessionalInsight(data) {
         
         const data = generatePalaceData();
 
-        // 【重置状态】解决重排无变化的问题
+        // 【重置状态】
         infoCard.classList.remove('visible');
         baguaCore.style.opacity = '1';
         baguaCore.style.transform = 'scale(1)';
         document.getElementById('res-full').innerHTML = "";
         document.getElementById('res-limit').innerHTML = "";
-        initEmptyGrid(); // 重新生成空 DOM
+        initEmptyGrid(); 
 
-        // Phase 1: 引擎启动 (0.0s)
+        // Phase 1: 引擎启动
         statusText.innerText = "> SYSTEM LOCKING...";
         overlay.style.opacity = '1';
         baguaCore.style.filter = 'drop-shadow(0 0 30px #d4af37)';
         
         setTimeout(() => {
-            // Phase 2: 星图展开 & 核心炸裂 (0.5s)
+            // Phase 2: 星图展开 & 核心炸裂
             overlay.style.opacity = '0';
             baguaCore.style.transform = 'scale(2)';
             baguaCore.style.opacity = '0';
@@ -363,9 +367,8 @@ function generateProfessionalInsight(data) {
 
             data.forEach((d, i) => {
                 const p = document.getElementById(`palace-${i}`);
-                p.classList.add('active'); // 网格变亮
+                p.classList.add('active'); 
                 
-                // 准备注入星曜内容
                 let sHTML = '';
                 d.main.forEach(s => {
                     let huaHTML = '';
@@ -375,7 +378,6 @@ function generateProfessionalInsight(data) {
                         const huaMap = { lu: '禄', quan: '权', ke: '科', ji: '忌' };
                         huaHTML = `<div class="hua-marker">${huaMap[d.hua]}</div>`;
                     }
-                    // 添加星曜元素，注入 animation CSS 和 delay
                     sHTML += `<div class="main-star ${cClass}" style="animation: starLand 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; animation-delay: ${1.2 + (i*0.05)}s;">${s}${huaHTML}</div>`;
                 });
 
@@ -389,30 +391,35 @@ function generateProfessionalInsight(data) {
         }, 500);
 
         setTimeout(() => {
-            // Phase 3 结束，切换中心卡片 (2.0s)
-          setTimeout(() => {
-            // 这里我们只需要找到命宫，暂时把局数写成动态显示的占位符
+            // Phase 3: 结束，切换中心卡片，动态拉取下拉框年份
             const mingPalace = data.find(x => x.name === '命宫');
-            document.getElementById('card-ming').innerText = mingPalace.branch + "宫";
+            document.getElementById('card-ming').innerText = mingPalace ? mingPalace.branch + "宫" : "--";
             
-            // 以后这里可以根据逻辑计算具体的局数，现在先让他动起来
-            const juList = ["金四局", "木三局", "水二局", "火六局", "土五局"];
-            document.getElementById('card-ju').innerText = juList[ySel.selectedIndex % 5];
+            // 随机生成一个身宫（或者你可以写更复杂的排盘算法）
+            document.getElementById('card-shen').innerText = ["子", "寅", "辰", "午", "申", "戌"][Math.floor(Math.random() * 6)] + "宫";
+            document.getElementById('card-ju').innerText = "火六局";
             
+            // 将下拉框选中的实际年份放进中心卡片
+            const selectedYearStr = ySel.options[ySel.selectedIndex].text.substring(0, 5); 
+            document.getElementById('card-bazi').innerText = `${selectedYearStr} 丁未 庚子 丙戌`;
+
             infoCard.classList.add('visible');
         }, 2000);
-            // Phase 4: 数据解析 打字机 (2.5s)
-           setTimeout(() => {
+
+        setTimeout(() => {
+            // Phase 4: 数据解析 打字机，接入动态分析引擎
             btn.disabled = false;
             
-            // 【关键改动】：调用引擎生成独一无二的文案
-            const dynamicText = generateProfessionalInsight(data);
+            // 调用动态解析引擎
+            const dynamicInsight = generateProfessionalInsight(data);
+            typeWriter("res-full", dynamicInsight);
             
-            typeWriter("res-full", `> [实时推演完毕]<br><br>${dynamicText}`);
-            typeWriter("res-limit", "> [十年轨道推演]<br><br>当前大限波动正常，时空轨迹已锁定。");
+            // 独立的大限解析
+            typeWriter("res-limit", "> [十年轨道推演]<br><br>当前大限行至财帛。此运程<span class='highlight'>财源广进</span>，事业有成，但需防范暗曜侵蚀。切莫贪功冒进，稳扎稳打方为上策。");
         }, 2500);
+    }
 
-    // 打字机效果解析器 (支持 HTML 标签)
+    // 打字机效果解析器 
     function typeWriter(elementId, text) {
         const el = document.getElementById(elementId);
         el.innerHTML = "";
