@@ -243,7 +243,51 @@
         }
         return data;
     }
+// 1. 这里的 dictionary 是你的专业知识库，可以无限扩充
+const dictionary = {
+    stars: {
+        "紫微": "具备领导潜质，格局宏大，但需防孤军奋战。",
+        "天机": "思维敏捷，具谋略之才，但心思过重易焦虑。",
+        "太阳": "志向高远，处事公正，利于名声传播。",
+        "廉贞": "性格刚硬，带有傲气，感情与事业易生极端波动。",
+        "七杀": "将星入命，具备极强的开创力与执行力，宜武不宜文。",
+        "破军": "不破不立，人生多变动，是典型的开拓者。",
+        "无主星": "性格随和但也易受外界影响，借对宫之星曜为用。"
+    },
+    hua: {
+        "lu": "主一生财源顺遂，处事圆融。",
+        "quan": "主权力欲望与掌控力，利于升迁。",
+        "ke": "主名声与贵人相助，考试及文书运佳。",
+        "ji": "主阻碍与亏欠，是需要一生去修行的功课。"
+    }
+};
 
+// 2. 这里的函数就是“推演引擎”，它负责根据排盘数据拼凑文案
+function generateProfessionalInsight(data) {
+    const mingPalace = data.find(p => p.name === "命宫");
+    const mainStar = mingPalace.main[0]; 
+    const hua = mingPalace.hua;         
+
+    let insight = `观其之命宫，坐${mainStar}。`;
+    
+    // 基础性格判定
+    insight += dictionary.stars[mainStar] || "命格清奇，具备独特之天赋。";
+    
+    // 四化逻辑注入
+    if (hua && dictionary.hua[hua]) {
+        insight += `<br><br><span class='highlight'>[四化加持]</span> ${dictionary.hua[hua]}`;
+    }
+
+    // 宫位环境判定
+    insight += `<br><br>身处${mingPalace.branch}宫，`;
+    if (["子", "午", "卯", "酉"].includes(mingPalace.branch)) {
+        insight += "此乃“四败之地”，主情感波动较多。";
+    } else {
+        insight += "地势稳健，利于中晚年扎根。";
+    }
+
+    return insight;
+}
     // 2. 初始化底层网格 (5%透明度预热)
     function initEmptyGrid() {
         const grid = document.getElementById('mainGrid');
@@ -346,18 +390,27 @@
 
         setTimeout(() => {
             // Phase 3 结束，切换中心卡片 (2.0s)
-            document.getElementById('card-ming').innerText = data.find(x => x.name === '命宫').branch + "宫";
-            document.getElementById('card-ju').innerText = "火六局";
+          setTimeout(() => {
+            // 这里我们只需要找到命宫，暂时把局数写成动态显示的占位符
+            const mingPalace = data.find(x => x.name === '命宫');
+            document.getElementById('card-ming').innerText = mingPalace.branch + "宫";
+            
+            // 以后这里可以根据逻辑计算具体的局数，现在先让他动起来
+            const juList = ["金四局", "木三局", "水二局", "火六局", "土五局"];
+            document.getElementById('card-ju').innerText = juList[ySel.selectedIndex % 5];
+            
             infoCard.classList.add('visible');
         }, 2000);
-
-        setTimeout(() => {
             // Phase 4: 数据解析 打字机 (2.5s)
+           setTimeout(() => {
             btn.disabled = false;
-            typeWriter("res-full", "> [全局扫描完毕]<br><br>命主性情<span class='highlight'>刚毅果决</span>，具开创之功。然三方四正见<span class='highlight danger'>廉贞化忌</span>，主思虑过重，易生波折。宜在动荡中求谋，以<span class='highlight'>破军化禄</span>之冲劲破局。");
-            typeWriter("res-limit", "> [十年轨道推演]<br><br>当前大限行至财帛。此运程<span class='highlight'>财源广进</span>，事业有成，但需防范暗曜侵蚀。切莫贪功冒进，稳扎稳打方为上策。");
+            
+            // 【关键改动】：调用引擎生成独一无二的文案
+            const dynamicText = generateProfessionalInsight(data);
+            
+            typeWriter("res-full", `> [实时推演完毕]<br><br>${dynamicText}`);
+            typeWriter("res-limit", "> [十年轨道推演]<br><br>当前大限波动正常，时空轨迹已锁定。");
         }, 2500);
-    }
 
     // 打字机效果解析器 (支持 HTML 标签)
     function typeWriter(elementId, text) {
